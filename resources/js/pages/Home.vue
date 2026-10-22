@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Deferred, Head, Link, usePage } from '@inertiajs/vue3';
 import { useMediaQuery } from '@vueuse/core';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import AppLaunchModal from '@/components/AppLaunchModal.vue';
 import AppTile from '@/components/AppTile.vue';
+import WeatherLine from '@/components/WeatherLine.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { useClock } from '@/composables/useClock';
 import { usePortal } from '@/composables/usePortal';
 import { WALLPAPERS, matchesQuery } from '@/lib/portal';
 import { tools } from '@/routes';
-import type { MicroApp } from '@/types';
+import type { MicroApp, Weather } from '@/types';
 
-const props = defineProps<{ apps: MicroApp[] }>();
+const props = defineProps<{ apps: MicroApp[]; weather?: Weather | null }>();
 
 // En el celular entran 4×2 apps por página; desde sm, 6×2 como en el diseño.
 const isPhone = useMediaQuery('(max-width: 639px)');
@@ -175,6 +176,13 @@ const recentApps = computed(() =>
                     class="text-base tracking-[0.02em] whitespace-nowrap text-wall-muted"
                 >
                     {{ date }}
+                </div>
+                <!-- Alto fijo: nada se corre cuando llega el tiempo, ni si no llega -->
+                <div class="h-5">
+                    <Deferred data="weather">
+                        <template #fallback />
+                        <WeatherLine v-if="weather" :weather="weather" />
+                    </Deferred>
                 </div>
                 <div
                     class="mt-[clamp(0px,0.6vh,6px)] text-[clamp(17px,2.6vh,22px)] leading-[1.3] italic"

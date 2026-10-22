@@ -14,6 +14,20 @@ export type MicroApp = {
     hasTarget: boolean;
 };
 
+// El tiempo en CABA (ver App\Services\Weather\CabaWeather).
+export type Weather = {
+    temp: number;
+    feelsLike: number;
+    max: number | null;
+    min: number | null;
+    code: number;
+    isDay: boolean;
+    label: string;
+    icon: string;
+    place: string;
+    updatedAt: string;
+};
+
 export type Category = {
     id: number;
     name: string;
