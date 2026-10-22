@@ -163,8 +163,46 @@ const recentApps = computed(() =>
         class="wall relative flex h-full min-h-0 flex-col overflow-hidden"
         :class="`wall-${wallpaper}`"
     >
+        <!-- Arriba a la derecha (en el celular, a todo el ancho): búsqueda y el tiempo -->
         <div
-            class="flex min-h-0 flex-1 flex-col items-center justify-center gap-[clamp(8px,2.2vh,30px)] px-4 pt-[clamp(8px,2vh,24px)] pb-1 sm:px-8"
+            class="flex flex-none justify-end px-4 pt-[clamp(10px,2vh,20px)] sm:px-8"
+        >
+            <div
+                class="flex w-full flex-col items-stretch gap-[clamp(4px,1vh,10px)] sm:w-[340px]"
+            >
+                <label
+                    class="flex h-11 w-full items-center gap-2.5 rounded border border-bd-divider bg-bd-surface px-4 text-bd-text shadow-bd-sm"
+                >
+                    <i
+                        class="ph-duotone ph-magnifying-glass text-xl text-bd-accent"
+                    />
+                    <input
+                        ref="searchInput"
+                        v-model="query"
+                        type="search"
+                        aria-label="Buscar una app"
+                        placeholder="Busca una app…"
+                        class="min-w-0 flex-1 border-0 bg-transparent text-base outline-none placeholder:text-[color-mix(in_srgb,var(--bd-text)_65%,transparent)] [&::-webkit-search-cancel-button]:hidden"
+                        @keydown="onSearchKey"
+                    />
+                    <kbd
+                        class="hidden rounded-[2px] border border-bd-divider px-[7px] py-px font-serif text-xs text-bd-muted sm:inline"
+                        >/</kbd
+                    >
+                </label>
+
+                <!-- Alto fijo: nada se corre cuando llega el tiempo, ni si no llega -->
+                <div class="h-9">
+                    <Deferred data="weather">
+                        <template #fallback />
+                        <WeatherLine v-if="weather" :weather="weather" />
+                    </Deferred>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-[clamp(8px,2.2vh,30px)] px-4 pb-1 sm:px-8"
         >
             <div class="flex w-full flex-col items-center gap-1.5 text-center">
                 <div
@@ -173,45 +211,17 @@ const recentApps = computed(() =>
                     {{ time }}
                 </div>
                 <div
-                    class="text-base tracking-[0.02em] whitespace-nowrap text-wall-muted"
+                    class="text-base tracking-[0.02em] whitespace-nowrap text-wall-muted [@media(max-height:600px)]:hidden"
                 >
                     {{ date }}
                 </div>
-                <!-- Alto fijo: nada se corre cuando llega el tiempo, ni si no llega -->
-                <div class="h-5">
-                    <Deferred data="weather">
-                        <template #fallback />
-                        <WeatherLine v-if="weather" :weather="weather" />
-                    </Deferred>
-                </div>
                 <div
-                    class="mt-[clamp(0px,0.6vh,6px)] text-[clamp(17px,2.6vh,22px)] leading-[1.3] italic"
+                    class="mt-[clamp(0px,0.6vh,6px)] text-[clamp(17px,2.6vh,22px)] leading-[1.3] italic [@media(max-height:700px)]:hidden"
                 >
                     {{ greeting }}
                     <span class="text-wall-muted">¿Qué resolvemos hoy?</span>
                 </div>
             </div>
-
-            <label
-                class="flex h-12 w-[min(480px,100%)] items-center gap-2.5 rounded border border-bd-divider bg-bd-surface px-4 text-bd-text shadow-bd-sm"
-            >
-                <i
-                    class="ph-duotone ph-magnifying-glass text-xl text-bd-accent"
-                />
-                <input
-                    ref="searchInput"
-                    v-model="query"
-                    type="search"
-                    aria-label="Buscar una app"
-                    placeholder="Busca una app… prueba con «pelis»"
-                    class="min-w-0 flex-1 border-0 bg-transparent text-base outline-none placeholder:text-[color-mix(in_srgb,var(--bd-text)_65%,transparent)] [&::-webkit-search-cancel-button]:hidden"
-                    @keydown="onSearchKey"
-                />
-                <kbd
-                    class="hidden rounded-[2px] border border-bd-divider px-[7px] py-px font-serif text-xs text-bd-muted sm:inline"
-                    >/</kbd
-                >
-            </label>
 
             <div
                 class="relative w-[min(760px,100%)] flex-none touch-pan-y overflow-hidden"
