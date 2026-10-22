@@ -44,7 +44,7 @@ const toggleTheme = () => updateAppearance(isDark.value ? 'light' : 'dark');
                 aria-label="Principal"
             >
                 <Link
-                    v-for="(tab, i) in tabs"
+                    v-for="tab in tabs"
                     :key="tab.label"
                     :href="tab.href"
                     class="flex h-full items-center gap-2 border-y-[3px] border-t-transparent px-2.5 text-[15px] font-semibold transition-colors min-[900px]:px-4"
@@ -55,11 +55,7 @@ const toggleTheme = () => updateAppearance(isDark.value ? 'light' : 'dark');
                     "
                     :aria-current="isCurrentUrl(tab.href) ? 'page' : undefined"
                 >
-                    <span
-                        class="hidden text-[11px] leading-none font-normal tracking-[0.08em] text-bd-muted min-[900px]:inline"
-                        >0{{ i + 1 }}</span
-                    >
-                    <span>{{ tab.label }}</span>
+                    {{ tab.label }}
                 </Link>
             </nav>
 
