@@ -213,7 +213,7 @@ const swatchStyle = (id: string) =>
                                 :dark="wallDark"
                             />
                             <span
-                                class="max-w-full text-center text-[13px] leading-[1.2] break-words hyphens-auto sm:text-sm"
+                                class="max-w-full text-center text-xs leading-[1.2] break-words sm:text-sm"
                                 >{{ app.name }}</span
                             >
                         </button>

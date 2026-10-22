@@ -42,12 +42,14 @@ const pillars = [
                 </p>
             </div>
             <div
-                class="mx-auto grid aspect-square w-full max-w-[420px] place-items-center overflow-hidden rounded bg-white"
+                class="mx-auto grid aspect-square w-full max-w-[420px] place-items-center rounded bg-bd-surface"
             >
                 <img
-                    src="/images/bambudev-wordmark.png"
+                    src="/images/logo-bambu-512.webp"
                     alt="bambudev"
-                    class="w-[118%] max-w-none"
+                    width="512"
+                    height="512"
+                    class="w-[68%]"
                 />
             </div>
         </div>
