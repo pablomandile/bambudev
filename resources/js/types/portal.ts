@@ -19,4 +19,10 @@ export type Category = {
     name: string;
 };
 
-export type Wallpaper = 'papel' | 'bambu' | 'trama' | 'bosque';
+export type Wallpaper =
+    | 'papel'
+    | 'bambu'
+    | 'trama'
+    | 'bosque'
+    | 'esterilla'
+    | 'canizo';

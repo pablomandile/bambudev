@@ -36,8 +36,9 @@ const guestRecents = ref<string[]>([]);
 const guestWallpaper = ref<Wallpaper>('bosque');
 const guestGenericIcons = ref(true);
 const guestHomeHidden = ref<string[]>([]);
-// Cambios del Inicio ya mostrados pero que el servidor todavía no confirmó.
+// Cambios ya mostrados pero que el servidor todavía no confirmó.
 const pendingHome = ref<Record<string, boolean>>({});
+const pendingWallpaper = ref<Wallpaper | null>(null);
 const openId = ref<string | null>(null);
 let hydrated = false;
 
@@ -65,7 +66,7 @@ export function usePortal() {
     const wallpaper = computed<Wallpaper>(() =>
         isGuest.value
             ? guestWallpaper.value
-            : (page.props.wallpaper ?? 'bosque'),
+            : (pendingWallpaper.value ?? page.props.wallpaper ?? 'bosque'),
     );
 
     function setWallpaper(value: Wallpaper) {
@@ -76,10 +77,17 @@ export function usePortal() {
             return;
         }
 
+        pendingWallpaper.value = value;
+
         router.patch(
             updatePreferences().url,
             { wallpaper: value },
-            { preserveScroll: true, preserveState: true, only: ['wallpaper'] },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['wallpaper'],
+                onFinish: () => (pendingWallpaper.value = null),
+            },
         );
     }
 

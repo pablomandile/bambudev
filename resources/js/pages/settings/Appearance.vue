@@ -2,6 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import Heading from '@/components/Heading.vue';
+import WallpaperPicker from '@/components/WallpaperPicker.vue';
 import { edit } from '@/routes/appearance';
 
 defineOptions({
@@ -28,5 +29,14 @@ defineOptions({
             description="Elige cómo se ve bambudev en este dispositivo"
         />
         <AppearanceTabs />
+    </div>
+
+    <div class="space-y-6">
+        <Heading
+            variant="small"
+            title="Fondo del Inicio"
+            description="El fondo que ves detrás de tus apps en el Inicio"
+        />
+        <WallpaperPicker />
     </div>
 </template>

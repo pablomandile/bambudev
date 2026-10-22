@@ -53,6 +53,8 @@ export const WALLPAPERS: { id: Wallpaper; label: string; dark?: boolean }[] = [
     { id: 'bambu', label: 'Bambú' },
     { id: 'trama', label: 'Trama' },
     { id: 'bosque', label: 'Bosque', dark: true },
+    { id: 'esterilla', label: 'Esterilla' },
+    { id: 'canizo', label: 'Cañizo' },
 ];
 
 /** Iconos Phosphor que ofrece el panel de alta de apps. */

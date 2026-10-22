@@ -398,4 +398,39 @@
         color: #eef2ec;
         --wall-muted: #a9c0b0;
     }
+
+    /*
+     * Cañas ilustradas (public/images/fondos, generadas por script). Encima va
+     * un velo claro que deja leer el reloj; en modo oscuro el velo es oscuro y
+     * el texto, claro. Al cambiar los SVG, subir el ?v=.
+     */
+    .wall-esterilla,
+    .wall-canizo {
+        background:
+            linear-gradient(rgb(250 240 220 / 0.42), rgb(250 240 220 / 0.42)),
+            var(--wall-image) 0 0 / 540px auto,
+            #4a3220;
+        color: #24160a;
+        --wall-muted: #3f2a12;
+        /* Halo claro: separa la fecha y los nombres de las cañas de atrás. */
+        text-shadow:
+            0 0 6px rgb(250 240 220 / 0.9),
+            0 0 2px rgb(250 240 220 / 0.9);
+    }
+    .wall-esterilla {
+        --wall-image: url('/images/fondos/esterilla.svg?v=1');
+    }
+    .wall-canizo {
+        --wall-image: url('/images/fondos/canizo.svg?v=1');
+    }
+    .dark .wall-esterilla,
+    .dark .wall-canizo {
+        background:
+            linear-gradient(rgb(18 12 6 / 0.68), rgb(18 12 6 / 0.68)),
+            var(--wall-image) 0 0 / 540px auto,
+            #4a3220;
+        color: #f3e9d6;
+        --wall-muted: #d6c3a0;
+        text-shadow: 0 0 6px rgb(18 12 6 / 0.8);
+    }
 }

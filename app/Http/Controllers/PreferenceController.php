@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 class PreferenceController extends Controller
 {
-    public const WALLPAPERS = ['papel', 'bambu', 'trama', 'bosque'];
+    public const WALLPAPERS = ['papel', 'bambu', 'trama', 'bosque', 'esterilla', 'canizo'];
 
     public function update(Request $request): RedirectResponse
     {

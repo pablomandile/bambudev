@@ -20,15 +20,8 @@ const perPage = computed(() => (isPhone.value ? 8 : 12));
 const page = usePage();
 const { time, date, salutation } = useClock();
 const { resolvedAppearance } = useAppearance();
-const {
-    recents,
-    wallpaper,
-    setWallpaper,
-    openId,
-    showApp,
-    isOnHome,
-    setOnHome,
-} = usePortal();
+const { recents, wallpaper, openId, showApp, isOnHome, setOnHome } =
+    usePortal();
 
 const firstName = computed(() => page.props.auth.user?.name.split(' ')[0]);
 const greeting = computed(() =>
@@ -160,11 +153,6 @@ const recentApps = computed(() =>
         .filter((a): a is MicroApp => !!a)
         .slice(0, isPhone.value ? 2 : 4),
 );
-
-const swatchStyle = (id: string) =>
-    id === wallpaper.value
-        ? 'box-shadow: 0 0 0 2px var(--bd-bg), 0 0 0 4px var(--bd-accent)'
-        : 'box-shadow: inset 0 0 0 1px var(--bd-divider)';
 </script>
 
 <template>
@@ -367,7 +355,7 @@ const swatchStyle = (id: string) =>
             <div class="flex items-center gap-2">
                 <button
                     type="button"
-                    class="mr-3 inline-flex items-center gap-1.5 rounded border border-bd-divider px-2.5 py-1 text-[13px]"
+                    class="inline-flex items-center gap-1.5 rounded border border-bd-divider px-2.5 py-1 text-[13px]"
                     :class="
                         editing
                             ? 'border-bd-accent bg-bd-accent text-bd-bg'
@@ -383,27 +371,6 @@ const swatchStyle = (id: string) =>
                     />
                     {{ editing ? 'Listo' : 'Editar' }}
                 </button>
-                <span
-                    class="mr-1 text-[11px] tracking-[0.1em] text-wall-muted uppercase"
-                    >Fondo</span
-                >
-                <button
-                    v-for="w in WALLPAPERS"
-                    :key="w.id"
-                    type="button"
-                    :title="w.label"
-                    :aria-label="`Fondo ${w.label}`"
-                    :aria-pressed="w.id === wallpaper"
-                    class="size-6 rounded-[2px]"
-                    :class="`wall-${w.id}`"
-                    :style="[
-                        swatchStyle(w.id),
-                        w.id === 'trama'
-                            ? 'background-size: 5px 5px, auto'
-                            : '',
-                    ]"
-                    @click="setWallpaper(w.id)"
-                />
             </div>
         </div>
     </div>

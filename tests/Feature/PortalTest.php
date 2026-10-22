@@ -110,6 +110,11 @@ class PortalTest extends TestCase
         $this->actingAs($user)->patch(route('preferences.update'), ['wallpaper' => 'trama'])->assertRedirect();
         $this->assertSame('trama', $user->fresh()->preferences['wallpaper']);
 
+        foreach (['esterilla', 'canizo'] as $bamboo) {
+            $this->actingAs($user)->patch(route('preferences.update'), ['wallpaper' => $bamboo])->assertSessionHasNoErrors();
+            $this->assertSame($bamboo, $user->fresh()->preferences['wallpaper']);
+        }
+
         $this->actingAs($user)->patch(route('preferences.update'), ['wallpaper' => 'neon'])->assertSessionHasErrors('wallpaper');
     }
 
