@@ -18,6 +18,7 @@ Route::post('apps/{microApp}/abrir', AppLaunchController::class)->name('apps.ope
 
 Route::middleware('auth')->group(function () {
     Route::patch('preferencias', [PreferenceController::class, 'update'])->name('preferences.update');
+    Route::patch('inicio/{microApp}', [PreferenceController::class, 'home'])->name('preferences.home');
 });
 
 Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {

@@ -20,7 +20,15 @@ const perPage = computed(() => (isPhone.value ? 8 : 12));
 const page = usePage();
 const { time, date, salutation } = useClock();
 const { resolvedAppearance } = useAppearance();
-const { recents, wallpaper, setWallpaper, openId, showApp } = usePortal();
+const {
+    recents,
+    wallpaper,
+    setWallpaper,
+    openId,
+    showApp,
+    isOnHome,
+    setOnHome,
+} = usePortal();
 
 const firstName = computed(() => page.props.auth.user?.name.split(' ')[0]);
 const greeting = computed(() =>
@@ -35,20 +43,37 @@ const wallDark = computed(
         !!WALLPAPERS.find((w) => w.id === wallpaper.value)?.dark,
 );
 
+// — Inicio personalizado —
+const ADD = 'add';
+const editing = ref(false);
+
+const homeApps = computed(() => props.apps.filter((a) => isOnHome(a)));
+
+const toggleEditing = () => {
+    editing.value = !editing.value;
+    query.value = '';
+};
+
 // — Búsqueda y paginación —
 const query = ref('');
 const current = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
+// La búsqueda recorre todo el catálogo, también lo que no está en el Inicio.
 const results = computed(() =>
-    props.apps.filter((a) => matchesQuery(a, query.value)),
+    query.value
+        ? props.apps.filter((a) => matchesQuery(a, query.value))
+        : homeApps.value,
 );
 
 const pages = computed(() => {
-    const chunks: MicroApp[][] = [];
+    const items: (MicroApp | typeof ADD)[] = editing.value
+        ? [...results.value, ADD]
+        : results.value;
+    const chunks: (MicroApp | typeof ADD)[][] = [];
 
-    for (let i = 0; i < results.value.length; i += perPage.value) {
-        chunks.push(results.value.slice(i, i + perPage.value));
+    for (let i = 0; i < items.length; i += perPage.value) {
+        chunks.push(items.slice(i, i + perPage.value));
     }
 
     return chunks.length ? chunks : [[]];
@@ -58,7 +83,14 @@ const activePage = computed(() =>
     Math.min(current.value, pages.value.length - 1),
 );
 
-watch(query, () => (current.value = 0));
+watch(query, () => {
+    current.value = 0;
+
+    // Buscando se ve todo el catálogo: no tiene sentido seguir editando.
+    if (query.value) {
+        editing.value = false;
+    }
+});
 
 const goPage = (delta: number) => {
     current.value = Math.max(
@@ -106,7 +138,9 @@ const onKeydown = (e: KeyboardEvent) => {
         return;
     }
 
-    if (e.key === '/') {
+    if (e.key === 'Escape' && editing.value) {
+        editing.value = false;
+    } else if (e.key === '/') {
         e.preventDefault();
         searchInput.value?.focus();
     } else if (e.key === 'ArrowRight') {
@@ -199,36 +233,87 @@ const swatchStyle = (id: string) =>
                         class="grid flex-[0_0_100%] grid-cols-4 gap-x-2 gap-y-[clamp(4px,1.4vh,16px)] sm:grid-cols-6"
                         :inert="i !== activePage"
                     >
-                        <button
-                            v-for="app in pageApps"
-                            :key="app.id"
-                            type="button"
-                            class="flex flex-col items-center justify-start gap-2.5 rounded px-0.5 py-1.5 transition-transform duration-[180ms] hover:-translate-y-1"
-                            @click="showApp(app)"
+                        <template
+                            v-for="item in pageApps"
+                            :key="item === ADD ? ADD : item.id"
                         >
-                            <AppTile
-                                :icon="app.icon"
-                                :hue="app.hue"
-                                :logo="app.logo"
-                                size="fluid"
-                                :dark="wallDark"
-                            />
-                            <span
-                                class="max-w-full text-center text-xs leading-[1.2] break-words sm:text-sm"
-                                >{{ app.name }}</span
+                            <Link
+                                v-if="item === ADD"
+                                :href="tools()"
+                                class="flex flex-col items-center justify-start gap-2.5 rounded px-0.5 py-1.5"
+                                data-test="home-add"
                             >
-                        </button>
+                                <span
+                                    class="grid size-[clamp(54px,10vh,84px)] place-items-center rounded border-2 border-dashed border-current text-[clamp(22px,4vh,34px)] opacity-60"
+                                    aria-hidden="true"
+                                >
+                                    <i class="ph-duotone ph-plus" />
+                                </span>
+                                <span
+                                    class="max-w-full text-center text-xs leading-[1.2] sm:text-sm"
+                                    >Agregar</span
+                                >
+                            </Link>
+                            <button
+                                v-else
+                                type="button"
+                                class="flex flex-col items-center justify-start gap-2.5 rounded px-0.5 py-1.5 transition-transform duration-[180ms]"
+                                :class="editing ? '' : 'hover:-translate-y-1'"
+                                :aria-label="
+                                    editing
+                                        ? `Quitar ${item.name} del Inicio`
+                                        : undefined
+                                "
+                                @click="
+                                    editing
+                                        ? setOnHome(item, false)
+                                        : showApp(item)
+                                "
+                            >
+                                <span class="relative">
+                                    <AppTile
+                                        :icon="item.icon"
+                                        :hue="item.hue"
+                                        :logo="item.logo"
+                                        size="fluid"
+                                        :dark="wallDark"
+                                    />
+                                    <span
+                                        v-if="editing"
+                                        class="absolute top-1 right-1 grid size-6 place-items-center rounded-full bg-bd-accent-2 text-white shadow-bd-sm"
+                                        aria-hidden="true"
+                                    >
+                                        <i
+                                            class="ph-duotone ph-minus text-sm"
+                                        />
+                                    </span>
+                                </span>
+                                <span
+                                    class="max-w-full text-center text-xs leading-[1.2] break-words sm:text-sm"
+                                    >{{ item.name }}</span
+                                >
+                            </button>
+                        </template>
                     </div>
                 </div>
 
                 <p
-                    v-if="!results.length"
+                    v-if="query && !results.length"
                     class="py-6 text-center text-lg text-wall-muted italic"
                 >
                     Nada por aquí con «{{ query }}». ¿Buscamos en
                     <Link :href="tools({ query: { q: query } })" class="bd-link"
                         >Herramientas</Link
                     >?
+                </p>
+                <p
+                    v-else-if="!results.length"
+                    class="py-6 text-center text-lg text-wall-muted italic"
+                >
+                    Tu Inicio está vacío.
+                    <Link :href="tools()" class="bd-link"
+                        >Elige tus apps en Herramientas</Link
+                    >.
                 </p>
             </div>
 
@@ -280,6 +365,24 @@ const swatchStyle = (id: string) =>
             </div>
 
             <div class="flex items-center gap-2">
+                <button
+                    type="button"
+                    class="mr-3 inline-flex items-center gap-1.5 rounded border border-bd-divider px-2.5 py-1 text-[13px]"
+                    :class="
+                        editing
+                            ? 'border-bd-accent bg-bd-accent text-bd-bg'
+                            : 'hover:bg-[color-mix(in_srgb,currentColor_11%,transparent)]'
+                    "
+                    :aria-pressed="editing"
+                    data-test="home-edit"
+                    @click="toggleEditing"
+                >
+                    <i
+                        class="ph-duotone"
+                        :class="editing ? 'ph-check' : 'ph-pencil-simple'"
+                    />
+                    {{ editing ? 'Listo' : 'Editar' }}
+                </button>
                 <span
                     class="mr-1 text-[11px] tracking-[0.1em] text-wall-muted uppercase"
                     >Fondo</span

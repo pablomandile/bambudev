@@ -1,12 +1,16 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { open as openRoute } from '@/routes/apps';
-import { update as updatePreferences } from '@/routes/preferences';
+import {
+    home as updateHome,
+    update as updatePreferences,
+} from '@/routes/preferences';
 import type { MicroApp, Wallpaper } from '@/types';
 
 const RECENTS_KEY = 'bambudev.recents';
 const WALLPAPER_KEY = 'bambudev.wallpaper';
 const GENERIC_ICONS_KEY = 'bambudev.genericIcons';
+const HOME_HIDDEN_KEY = 'bambudev.homeHidden';
 const MAX_RECENTS = 4;
 
 const readLocal = <T>(key: string, fallback: T): T => {
@@ -31,6 +35,9 @@ const writeLocal = (key: string, value: unknown) => {
 const guestRecents = ref<string[]>([]);
 const guestWallpaper = ref<Wallpaper>('bosque');
 const guestGenericIcons = ref(true);
+const guestHomeHidden = ref<string[]>([]);
+// Cambios del Inicio ya mostrados pero que el servidor todavía no confirmó.
+const pendingHome = ref<Record<string, boolean>>({});
 const openId = ref<string | null>(null);
 let hydrated = false;
 
@@ -46,6 +53,7 @@ export function usePortal() {
         guestRecents.value = readLocal<string[]>(RECENTS_KEY, []);
         guestWallpaper.value = readLocal<Wallpaper>(WALLPAPER_KEY, 'bosque');
         guestGenericIcons.value = readLocal<boolean>(GENERIC_ICONS_KEY, true);
+        guestHomeHidden.value = readLocal<string[]>(HOME_HIDDEN_KEY, []);
     }
 
     const isGuest = computed(() => !page.props.auth.user);
@@ -101,6 +109,43 @@ export function usePortal() {
         );
     }
 
+    // Inicio personalizado: se guardan las apps que la persona sacó.
+    const homeHidden = computed<string[]>(() =>
+        isGuest.value ? guestHomeHidden.value : (page.props.homeHidden ?? []),
+    );
+
+    function isOnHome(app: MicroApp): boolean {
+        return pendingHome.value[app.id] ?? !homeHidden.value.includes(app.id);
+    }
+
+    function setOnHome(app: MicroApp, onHome: boolean) {
+        if (isGuest.value) {
+            guestHomeHidden.value = [
+                ...guestHomeHidden.value.filter((id) => id !== app.id),
+                ...(onHome ? [] : [app.id]),
+            ];
+            writeLocal(HOME_HIDDEN_KEY, guestHomeHidden.value);
+
+            return;
+        }
+
+        pendingHome.value = { ...pendingHome.value, [app.id]: onHome };
+
+        router.patch(
+            updateHome(app.id).url,
+            { on_home: onHome },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['homeHidden'],
+                onFinish: () => {
+                    const { [app.id]: _, ...rest } = pendingHome.value;
+                    pendingHome.value = rest;
+                },
+            },
+        );
+    }
+
     function rememberGuestRecent(id: string) {
         guestRecents.value = [
             id,
@@ -135,6 +180,8 @@ export function usePortal() {
         setWallpaper,
         genericIcons,
         setGenericIcons,
+        isOnHome,
+        setOnHome,
         openId,
         showApp,
         closeApp,

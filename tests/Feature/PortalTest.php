@@ -130,6 +130,40 @@ class PortalTest extends TestCase
         $this->patch(route('preferences.update'), ['generic_icons' => 'quizas'])->assertSessionHasErrors('generic_icons');
     }
 
+    public function test_users_can_take_apps_off_their_home_and_put_them_back()
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['preferences' => ['wallpaper' => 'trama']])->save();
+        [$a, $b] = MicroApp::factory()->count(2)->create();
+
+        $this->actingAs($user)->get(route('home'))
+            ->assertInertia(fn (Assert $page) => $page->has('apps', 2)->where('homeHidden', []));
+
+        $this->patch(route('preferences.home', $a), ['on_home' => false])->assertSessionHasNoErrors();
+        $this->patch(route('preferences.home', $b), ['on_home' => false])->assertSessionHasNoErrors();
+        // Sacarla dos veces no la duplica.
+        $this->patch(route('preferences.home', $a), ['on_home' => false]);
+        $this->assertSame([$b->slug, $a->slug], $user->fresh()->preferences['home_hidden']);
+        $this->assertSame('trama', $user->fresh()->preferences['wallpaper']);
+
+        $this->patch(route('preferences.home', $b), ['on_home' => true]);
+
+        // El catálogo completo sigue llegando: el Inicio filtra en el cliente.
+        $this->get(route('tools'))
+            ->assertInertia(fn (Assert $page) => $page->has('apps', 2)->where('homeHidden', [$a->slug]));
+
+        $this->patch(route('preferences.home', $a), ['on_home' => 'quizas'])->assertSessionHasErrors('on_home');
+        $this->patch(route('preferences.home', 'no-existe'), ['on_home' => true])->assertNotFound();
+    }
+
+    public function test_guests_keep_their_home_in_the_browser()
+    {
+        $app = MicroApp::factory()->create();
+
+        $this->get(route('home'))->assertInertia(fn (Assert $page) => $page->where('homeHidden', null));
+        $this->patch(route('preferences.home', $app), ['on_home' => false])->assertRedirect(route('login'));
+    }
+
     public function test_guests_cannot_save_preferences()
     {
         $this->patch(route('preferences.update'), ['wallpaper' => 'trama'])->assertRedirect(route('login'));

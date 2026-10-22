@@ -46,6 +46,8 @@ class HandleInertiaRequests extends Middleware
             'recents' => fn () => $request->user()?->recentApps()->limit(4)->pluck('slug')->all(),
             'wallpaper' => fn () => $request->user()?->preferences['wallpaper'] ?? null,
             'genericIcons' => fn () => $request->user()?->preferences['generic_icons'] ?? null,
+            // Slugs de las apps que la persona sacó de su Inicio (null sin sesión).
+            'homeHidden' => fn () => $request->user() ? ($request->user()->preferences['home_hidden'] ?? []) : null,
         ];
     }
 }

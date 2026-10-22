@@ -14,7 +14,8 @@ const props = defineProps<{ apps: MicroApp[]; initialQuery: string }>();
 const ALL = 'Todas';
 
 const { resolvedAppearance } = useAppearance();
-const { recents, showApp, genericIcons, setGenericIcons } = usePortal();
+const { recents, showApp, genericIcons, setGenericIcons, isOnHome, setOnHome } =
+    usePortal();
 
 const query = ref(props.initialQuery);
 const category = ref(ALL);
@@ -155,7 +156,32 @@ const isRecent = (app: MicroApp) => recents.value.slice(0, 3).includes(app.id);
                     >
                         Abrir<i class="ph-duotone ph-arrow-up-right" />
                     </button>
-                    <span class="text-xs text-bd-muted">En tu Inicio</span>
+                    <button
+                        type="button"
+                        class="inline-flex h-9 items-center gap-1.5 rounded-[2px] px-2.5 text-[13px] font-semibold"
+                        :class="
+                            isOnHome(app)
+                                ? 'text-bd-accent hover:bg-bd-hover'
+                                : 'border border-bd-divider text-bd-text hover:bg-bd-hover'
+                        "
+                        :aria-pressed="isOnHome(app)"
+                        :title="
+                            isOnHome(app)
+                                ? `Quitar ${app.name} de tu Inicio`
+                                : `Agregar ${app.name} a tu Inicio`
+                        "
+                        data-test="home-toggle"
+                        @click="setOnHome(app, !isOnHome(app))"
+                    >
+                        <template v-if="isOnHome(app)">
+                            <i class="ph-duotone ph-check-circle text-base" />
+                            En tu Inicio
+                        </template>
+                        <template v-else>
+                            <i class="ph-duotone ph-plus text-base" />
+                            Agregar al Inicio
+                        </template>
+                    </button>
                 </div>
             </div>
         </div>

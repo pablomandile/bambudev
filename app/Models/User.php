@@ -28,7 +28,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property bool $is_admin
- * @property array{wallpaper?: string, generic_icons?: bool}|null $preferences
+ * @property array{wallpaper?: string, generic_icons?: bool, home_hidden?: list<string>}|null $preferences
  */
 #[Fillable(['name', 'email', 'password', 'preferences'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]

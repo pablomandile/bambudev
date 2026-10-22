@@ -23,6 +23,7 @@ declare module '@inertiajs/core' {
             recents: string[] | null;
             wallpaper: Wallpaper | null;
             genericIcons: boolean | null;
+            homeHidden: string[] | null;
             [key: string]: unknown;
         };
     }
