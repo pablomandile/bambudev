@@ -22,6 +22,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             recents: string[] | null;
             wallpaper: Wallpaper | null;
+            genericIcons: boolean | null;
             [key: string]: unknown;
         };
     }
@@ -36,5 +37,20 @@ declare module 'vue' {
         $inertia: typeof Router;
         $page: Page;
         $headManager: ReturnType<typeof createHeadManager>;
+    }
+}
+
+interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    readonly userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+declare global {
+    interface Window {
+        // Lo completa el script inline del <head> en app.blade.php.
+        __pwaInstall: {
+            prompt: BeforeInstallPromptEvent | null;
+            installed: boolean;
+        };
     }
 }

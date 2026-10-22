@@ -2,6 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import BrandMark from '@/components/BrandMark.vue';
+import InstallAppButton from '@/components/InstallAppButton.vue';
 import { Toaster } from '@/components/ui/sonner';
 import UserMenu from '@/components/UserMenu.vue';
 import { useAppearance } from '@/composables/useAppearance';
@@ -60,6 +61,7 @@ const toggleTheme = () => updateAppearance(isDark.value ? 'light' : 'dark');
             </nav>
 
             <div class="ml-auto flex items-center gap-2">
+                <InstallAppButton />
                 <button
                     type="button"
                     class="btn btn-secondary btn-icon"
