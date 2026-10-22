@@ -5,6 +5,7 @@ export type MicroApp = {
     categoryId: number;
     icon: string;
     hue: number;
+    logo: string | null;
     tags: string;
     desc: string;
     visible: boolean;

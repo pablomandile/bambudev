@@ -6,6 +6,7 @@ import type { MicroApp, Wallpaper } from '@/types';
 
 const RECENTS_KEY = 'bambudev.recents';
 const WALLPAPER_KEY = 'bambudev.wallpaper';
+const GENERIC_ICONS_KEY = 'bambudev.genericIcons';
 const MAX_RECENTS = 4;
 
 const readLocal = <T>(key: string, fallback: T): T => {
@@ -29,12 +30,13 @@ const writeLocal = (key: string, value: unknown) => {
 // Estado compartido entre páginas: los invitados guardan todo en el navegador.
 const guestRecents = ref<string[]>([]);
 const guestWallpaper = ref<Wallpaper>('bosque');
+const guestGenericIcons = ref(true);
 const openId = ref<string | null>(null);
 let hydrated = false;
 
 /**
- * Preferencias del portal (fondo y recientes) y apertura de apps. Con sesión
- * se guardan en el perfil; sin sesión, en localStorage.
+ * Preferencias del portal (fondo, iconos genéricos y recientes) y apertura de
+ * apps. Con sesión se guardan en el perfil; sin sesión, en localStorage.
  */
 export function usePortal() {
     const page = usePage();
@@ -43,6 +45,7 @@ export function usePortal() {
         hydrated = true;
         guestRecents.value = readLocal<string[]>(RECENTS_KEY, []);
         guestWallpaper.value = readLocal<Wallpaper>(WALLPAPER_KEY, 'bosque');
+        guestGenericIcons.value = readLocal<boolean>(GENERIC_ICONS_KEY, true);
     }
 
     const isGuest = computed(() => !page.props.auth.user);
@@ -69,6 +72,32 @@ export function usePortal() {
             updatePreferences().url,
             { wallpaper: value },
             { preserveScroll: true, preserveState: true, only: ['wallpaper'] },
+        );
+    }
+
+    // Iconos genéricos (los del catálogo) o el logo propio de cada app.
+    const genericIcons = computed<boolean>(() =>
+        isGuest.value
+            ? guestGenericIcons.value
+            : (page.props.genericIcons ?? true),
+    );
+
+    function setGenericIcons(value: boolean) {
+        if (isGuest.value) {
+            guestGenericIcons.value = value;
+            writeLocal(GENERIC_ICONS_KEY, value);
+
+            return;
+        }
+
+        router.patch(
+            updatePreferences().url,
+            { generic_icons: value },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['genericIcons'],
+            },
         );
     }
 
@@ -104,6 +133,8 @@ export function usePortal() {
         recents,
         wallpaper,
         setWallpaper,
+        genericIcons,
+        setGenericIcons,
         openId,
         showApp,
         closeApp,

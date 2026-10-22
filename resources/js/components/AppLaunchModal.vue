@@ -41,6 +41,7 @@ onUnmounted(() => {
                 <AppTile
                     :icon="app.icon"
                     :hue="app.hue"
+                    :logo="app.logo"
                     :size="64"
                     :dark="resolvedAppearance === 'dark'"
                 />

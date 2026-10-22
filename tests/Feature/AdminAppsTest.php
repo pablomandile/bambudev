@@ -6,6 +6,8 @@ use App\Models\Category;
 use App\Models\MicroApp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -138,5 +140,92 @@ class AdminAppsTest extends TestCase
             ->assertForbidden();
 
         $this->assertModelExists($app);
+    }
+
+    /**
+     * @param  array<string, mixed>  $extra
+     * @return array<string, mixed>
+     */
+    private function payload(MicroApp $app, array $extra = []): array
+    {
+        return [
+            'name' => $app->name,
+            'category_id' => $app->category_id,
+            'icon' => $app->icon,
+            'hue' => $app->hue,
+            'target_type' => 'external',
+            ...$extra,
+        ];
+    }
+
+    public function test_admins_can_upload_replace_and_remove_a_logo()
+    {
+        Storage::fake('public');
+        $app = MicroApp::factory()->create();
+        $this->actingAs($this->admin());
+
+        $this->put(route('admin.apps.update', $app), $this->payload($app, [
+            'logo' => UploadedFile::fake()->image('logo.png', 256, 256),
+        ]))->assertSessionHasNoErrors();
+        $first = $app->fresh()->logo_path;
+        Storage::disk('public')->assertExists($first);
+
+        $this->get(route('tools'))->assertInertia(fn (Assert $page) => $page
+            ->where('apps.0.logo', Storage::disk('public')->url($first))
+        );
+
+        $this->put(route('admin.apps.update', $app), $this->payload($app, [
+            'logo' => UploadedFile::fake()->image('otro.webp', 128, 128),
+        ]))->assertSessionHasNoErrors();
+        $second = $app->fresh()->logo_path;
+        Storage::disk('public')->assertMissing($first);
+        Storage::disk('public')->assertExists($second);
+
+        // Editar sin mandar logo no lo toca.
+        $this->put(route('admin.apps.update', $app), $this->payload($app))->assertSessionHasNoErrors();
+        $this->assertSame($second, $app->fresh()->logo_path);
+
+        $this->put(route('admin.apps.update', $app), $this->payload($app, ['remove_logo' => true]))
+            ->assertSessionHasNoErrors();
+        $this->assertNull($app->fresh()->logo_path);
+        Storage::disk('public')->assertMissing($second);
+    }
+
+    public function test_deleting_an_app_deletes_its_logo()
+    {
+        Storage::fake('public');
+        $category = Category::factory()->create();
+        $this->actingAs($this->admin());
+
+        $this->post(route('admin.apps.store'), [
+            'name' => 'ConLogo',
+            'category_id' => $category->id,
+            'icon' => 'ph-gift',
+            'hue' => 20,
+            'target_type' => 'external',
+            'logo' => UploadedFile::fake()->image('logo.jpg', 100, 100),
+        ])->assertSessionHasNoErrors();
+        $app = MicroApp::where('name', 'ConLogo')->firstOrFail();
+        Storage::disk('public')->assertExists($app->logo_path);
+
+        $this->delete(route('admin.apps.destroy', $app));
+        Storage::disk('public')->assertMissing($app->logo_path);
+    }
+
+    public function test_logos_must_be_raster_images_of_a_reasonable_size()
+    {
+        Storage::fake('public');
+        $app = MicroApp::factory()->create();
+        $this->actingAs($this->admin());
+
+        $svg = UploadedFile::fake()->createWithContent('logo.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+        $this->put(route('admin.apps.update', $app), $this->payload($app, ['logo' => $svg]))
+            ->assertSessionHasErrors('logo');
+
+        $this->put(route('admin.apps.update', $app), $this->payload($app, [
+            'logo' => UploadedFile::fake()->image('chico.png', 32, 32),
+        ]))->assertSessionHasErrors('logo');
+
+        $this->assertNull($app->fresh()->logo_path);
     }
 }

@@ -14,7 +14,7 @@ const props = defineProps<{ apps: MicroApp[]; initialQuery: string }>();
 const ALL = 'Todas';
 
 const { resolvedAppearance } = useAppearance();
-const { recents, showApp } = usePortal();
+const { recents, showApp, genericIcons, setGenericIcons } = usePortal();
 
 const query = ref(props.initialQuery);
 const category = ref(ALL);
@@ -75,23 +75,49 @@ const isRecent = (app: MicroApp) => recents.value.slice(0, 3).includes(app.id);
             </label>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-            <button
-                v-for="c in categories"
-                :key="c.name"
-                type="button"
-                class="inline-flex items-center gap-2 rounded-[2px] border px-3.5 py-[7px] text-sm"
-                :class="
-                    category === c.name
-                        ? 'border-bd-accent bg-bd-accent text-bd-bg'
-                        : 'border-bd-divider text-bd-text hover:bg-bd-hover'
-                "
-                :aria-pressed="category === c.name"
-                @click="category = c.name"
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap gap-2">
+                <button
+                    v-for="c in categories"
+                    :key="c.name"
+                    type="button"
+                    class="inline-flex items-center gap-2 rounded-[2px] border px-3.5 py-[7px] text-sm"
+                    :class="
+                        category === c.name
+                            ? 'border-bd-accent bg-bd-accent text-bd-bg'
+                            : 'border-bd-divider text-bd-text hover:bg-bd-hover'
+                    "
+                    :aria-pressed="category === c.name"
+                    @click="category = c.name"
+                >
+                    {{ c.name }}
+                    <span class="text-xs opacity-60">{{ c.count }}</span>
+                </button>
+            </div>
+
+            <label
+                class="flex cursor-pointer items-center gap-2.5 text-sm text-bd-muted"
+                title="Apágalo para ver el logo propio de cada app"
             >
-                {{ c.name }}
-                <span class="text-xs opacity-60">{{ c.count }}</span>
-            </button>
+                Iconos genéricos
+                <button
+                    type="button"
+                    role="switch"
+                    :aria-checked="genericIcons"
+                    data-test="generic-icons-switch"
+                    class="flex h-[22px] w-10 flex-none rounded-[11px] p-0.5 transition-colors duration-200"
+                    :class="
+                        genericIcons
+                            ? 'justify-end bg-bd-accent'
+                            : 'justify-start bg-bd-divider'
+                    "
+                    @click="setGenericIcons(!genericIcons)"
+                >
+                    <span
+                        class="block size-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,.3)]"
+                    />
+                </button>
+            </label>
         </div>
 
         <div class="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-5">
@@ -104,6 +130,7 @@ const isRecent = (app: MicroApp) => recents.value.slice(0, 3).includes(app.id);
                     <AppTile
                         :icon="app.icon"
                         :hue="app.hue"
+                        :logo="app.logo"
                         :size="52"
                         :dark="resolvedAppearance === 'dark'"
                     />

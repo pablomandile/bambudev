@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             // Slugs de las apps abiertas hace poco (solo con sesión; los invitados usan localStorage).
             'recents' => fn () => $request->user()?->recentApps()->limit(4)->pluck('slug')->all(),
             'wallpaper' => fn () => $request->user()?->preferences['wallpaper'] ?? null,
+            'genericIcons' => fn () => $request->user()?->preferences['generic_icons'] ?? null,
         ];
     }
 }

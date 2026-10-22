@@ -25,6 +25,7 @@ class MicroAppResource extends JsonResource
             'categoryId' => $this->category_id,
             'icon' => $this->icon,
             'hue' => $this->hue,
+            'logo' => $this->logoUrl(),
             'tags' => $this->tags ?? '',
             'desc' => $this->description ?? '',
             'visible' => $this->visible,

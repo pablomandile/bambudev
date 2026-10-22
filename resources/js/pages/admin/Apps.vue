@@ -61,7 +61,49 @@ const form = useForm({
     tags: '',
     target_type: 'external' as MicroApp['targetType'],
     target: '',
+    logo: null as File | null,
+    remove_logo: false,
 });
+
+// — Logo propio —
+const currentLogo = ref<string | null>(null);
+const logoInput = ref<HTMLInputElement | null>(null);
+const pickedLogoUrl = ref<string | null>(null);
+
+const logoPreview = computed(() =>
+    form.logo
+        ? pickedLogoUrl.value
+        : form.remove_logo
+          ? null
+          : currentLogo.value,
+);
+
+function setPickedLogo(file: File | null) {
+    if (pickedLogoUrl.value) {
+        URL.revokeObjectURL(pickedLogoUrl.value);
+    }
+
+    form.logo = file;
+    pickedLogoUrl.value = file ? URL.createObjectURL(file) : null;
+
+    if (logoInput.value && !file) {
+        logoInput.value.value = '';
+    }
+}
+
+const onLogoPicked = (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    setPickedLogo(file);
+
+    if (file) {
+        form.remove_logo = false;
+    }
+};
+
+const removeLogo = () => {
+    setPickedLogo(null);
+    form.remove_logo = !!currentLogo.value;
+};
 
 const draftName = computed(() => form.name.trim() || 'Tu nueva app');
 const draftCategory = computed(
@@ -70,6 +112,8 @@ const draftCategory = computed(
 
 function resetDraft() {
     editing.value = null;
+    currentLogo.value = null;
+    setPickedLogo(null);
     const category = form.category_id;
     form.reset();
     form.clearErrors();
@@ -87,6 +131,9 @@ function editApp(app: MicroApp) {
     form.tags = app.tags;
     form.target_type = app.targetType;
     form.target = app.target ?? '';
+    form.remove_logo = false;
+    setPickedLogo(null);
+    currentLogo.value = app.logo;
 
     // En una columna el panel queda debajo de la lista: lo traemos a la vista.
     if (window.matchMedia('(max-width: 1023px)').matches) {
@@ -107,15 +154,19 @@ const hueChoices = computed(() =>
 
 const submit = () => {
     if (editing.value) {
-        form.put(update(editing.value).url, {
-            ...keep,
-            onSuccess: () => resetDraft(),
-        });
+        // Con archivo va como multipart, que PHP solo lee en POST: se simula el PUT.
+        form.transform((data) => ({ ...data, _method: 'put' })).post(
+            update(editing.value).url,
+            { ...keep, onSuccess: () => resetDraft() },
+        );
 
         return;
     }
 
-    form.post(store().url, { ...keep, onSuccess: () => resetDraft() });
+    form.transform((data) => data).post(store().url, {
+        ...keep,
+        onSuccess: () => resetDraft(),
+    });
 };
 </script>
 
@@ -187,6 +238,7 @@ const submit = () => {
                                 <AppTile
                                     :icon="app.icon"
                                     :hue="app.hue"
+                                    :logo="app.logo"
                                     :size="40"
                                     :dark="dark"
                                 />
@@ -275,6 +327,7 @@ const submit = () => {
                         <AppTile
                             :icon="app.icon"
                             :hue="app.hue"
+                            :logo="app.logo"
                             :size="40"
                             :dark="dark"
                         />
@@ -379,6 +432,12 @@ const submit = () => {
                         :size="56"
                         :dark="dark"
                     />
+                    <img
+                        v-if="logoPreview"
+                        :src="logoPreview"
+                        alt="Logo propio"
+                        class="size-14 flex-none rounded object-contain"
+                    />
                     <div class="min-w-0">
                         <div class="truncate text-[17px] font-semibold">
                             {{ draftName }}
@@ -469,6 +528,33 @@ const submit = () => {
                             @click="form.hue = hue"
                         />
                     </div>
+                </div>
+
+                <div class="field">
+                    <label for="app-logo">Logo propio</label>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <input
+                            id="app-logo"
+                            ref="logoInput"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            class="input min-w-0 flex-1 text-[13px]"
+                            @change="onLogoPicked"
+                        />
+                        <button
+                            v-if="logoPreview"
+                            type="button"
+                            class="btn btn-secondary"
+                            @click="removeLogo"
+                        >
+                            Quitar
+                        </button>
+                    </div>
+                    <InputError :message="form.errors.logo" />
+                    <p class="mt-1 mb-0 text-xs text-bd-muted">
+                        PNG, JPG o WebP cuadrado, de hasta 1 MB. Se ve cuando
+                        alguien apaga los iconos genéricos en Herramientas.
+                    </p>
                 </div>
 
                 <div class="field">

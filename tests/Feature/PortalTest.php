@@ -113,6 +113,23 @@ class PortalTest extends TestCase
         $this->actingAs($user)->patch(route('preferences.update'), ['wallpaper' => 'neon'])->assertSessionHasErrors('wallpaper');
     }
 
+    public function test_users_can_choose_between_generic_icons_and_logos()
+    {
+        $user = User::factory()->create();
+        $user->forceFill(['preferences' => ['wallpaper' => 'trama']])->save();
+
+        $this->actingAs($user)->get(route('tools'))
+            ->assertInertia(fn (Assert $page) => $page->where('genericIcons', null));
+
+        $this->patch(route('preferences.update'), ['generic_icons' => false])->assertSessionHasNoErrors();
+        $this->assertSame(['wallpaper' => 'trama', 'generic_icons' => false], $user->fresh()->preferences);
+
+        $this->get(route('tools'))
+            ->assertInertia(fn (Assert $page) => $page->where('genericIcons', false));
+
+        $this->patch(route('preferences.update'), ['generic_icons' => 'quizas'])->assertSessionHasErrors('generic_icons');
+    }
+
     public function test_guests_cannot_save_preferences()
     {
         $this->patch(route('preferences.update'), ['wallpaper' => 'trama'])->assertRedirect(route('login'));

@@ -38,6 +38,9 @@ class MicroAppRequest extends FormRequest
             'icon' => ['required', 'string', 'max:64', 'regex:'.self::ICON_PATTERN],
             'hue' => ['required', 'integer', 'between:0,360'],
             'tags' => ['nullable', 'string', 'max:255'],
+            // Sin SVG: puede traer scripts y se serviría desde este mismo dominio.
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024', 'dimensions:min_width=64,min_height=64'],
+            'remove_logo' => ['boolean'],
             'target_type' => ['required', Rule::in([MicroApp::TARGET_INTERNAL, MicroApp::TARGET_EXTERNAL])],
             'target' => [
                 'nullable',
@@ -72,6 +75,7 @@ class MicroAppRequest extends FormRequest
             'category_id' => 'categoría',
             'icon' => 'icono',
             'hue' => 'color',
+            'logo' => 'logo',
             'target_type' => 'tipo de destino',
             'target' => 'destino',
         ];

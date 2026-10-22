@@ -26,7 +26,11 @@ class MicroAppController extends Controller
 
     public function store(MicroAppRequest $request): RedirectResponse
     {
-        $app = MicroApp::create($request->validated());
+        $app = MicroApp::create($request->safe()->except(['logo', 'remove_logo']));
+
+        if ($request->hasFile('logo')) {
+            $app->replaceLogo($request->file('logo'));
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "¡Listo! «{$app->name}» ya está en el Inicio."]);
 
@@ -35,7 +39,13 @@ class MicroAppController extends Controller
 
     public function update(MicroAppRequest $request, MicroApp $microApp): RedirectResponse
     {
-        $microApp->update($request->validated());
+        $microApp->update($request->safe()->except(['logo', 'remove_logo']));
+
+        if ($request->hasFile('logo')) {
+            $microApp->replaceLogo($request->file('logo'));
+        } elseif ($request->boolean('remove_logo')) {
+            $microApp->replaceLogo(null);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => "«{$microApp->name}» quedó actualizada."]);
 

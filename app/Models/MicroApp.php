@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -21,6 +23,7 @@ use Illuminate\Support\Str;
  * @property int $category_id
  * @property string $icon
  * @property int $hue
+ * @property string|null $logo_path
  * @property string|null $tags
  * @property bool $visible
  * @property int $sort_order
@@ -38,11 +41,22 @@ class MicroApp extends Model
 
     public const TARGET_EXTERNAL = 'external';
 
+    /**
+     * Carpeta del disco público donde se guardan los logos propios.
+     */
+    public const LOGO_DIRECTORY = 'logos';
+
     protected static function booted(): void
     {
         static::creating(function (MicroApp $app) {
             $app->slug ??= static::uniqueSlug($app->name);
             $app->sort_order = $app->sort_order ?: ((int) static::max('sort_order')) + 1;
+        });
+
+        static::deleted(function (MicroApp $app) {
+            if ($app->logo_path) {
+                Storage::disk('public')->delete($app->logo_path);
+            }
         });
     }
 
@@ -97,6 +111,28 @@ class MicroApp extends Model
     public function scopeVisible(Builder $query): void
     {
         $query->where('visible', true);
+    }
+
+    /**
+     * URL pública del logo propio, o null si la app solo tiene el icono genérico.
+     */
+    public function logoUrl(): ?string
+    {
+        return $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null;
+    }
+
+    /**
+     * Guarda el logo nuevo (o lo quita, con null) y borra el archivo anterior.
+     */
+    public function replaceLogo(?UploadedFile $file): void
+    {
+        $old = $this->logo_path;
+        $this->logo_path = $file?->store(self::LOGO_DIRECTORY, 'public') ?: null;
+        $this->save();
+
+        if ($old) {
+            Storage::disk('public')->delete($old);
+        }
     }
 
     /**

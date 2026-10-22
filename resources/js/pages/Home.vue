@@ -209,6 +209,7 @@ const swatchStyle = (id: string) =>
                             <AppTile
                                 :icon="app.icon"
                                 :hue="app.hue"
+                                :logo="app.logo"
                                 size="fluid"
                                 :dark="wallDark"
                             />
@@ -270,6 +271,7 @@ const swatchStyle = (id: string) =>
                     <AppTile
                         :icon="app.icon"
                         :hue="app.hue"
+                        :logo="app.logo"
                         :size="28"
                         :dark="wallDark"
                     />
