@@ -28,6 +28,18 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+     * Ingreso con Google. Sin client_id/secret el botón no se muestra y las
+     * rutas de /auth/google dan 404. La redirect URI tiene que ser idéntica a
+     * la cargada en Google Cloud (esquema incluido, sin barra final).
+     */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        // `?:` y no el default de env(): una línea `GOOGLE_REDIRECT_URI=` vacía llega como ''.
+        'redirect' => env('GOOGLE_REDIRECT_URI') ?: env('APP_URL').'/auth/google/callback',
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

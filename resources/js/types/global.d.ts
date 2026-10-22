@@ -24,6 +24,7 @@ declare module '@inertiajs/core' {
             wallpaper: Wallpaper | null;
             genericIcons: boolean | null;
             homeHidden: string[] | null;
+            googleLoginEnabled: boolean;
             [key: string]: unknown;
         };
     }

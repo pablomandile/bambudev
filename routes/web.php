@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\MicroAppController;
 use App\Http\Controllers\AppLaunchController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PreferenceController;
@@ -15,6 +16,13 @@ Route::get('ayuda', [ContactController::class, 'show'])->name('help');
 Route::post('ayuda', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('help.store');
 
 Route::post('apps/{microApp}/abrir', AppLaunchController::class)->name('apps.open');
+
+// Ingreso con Google. `guest`: con la sesión abierta, rehacer el flujo solo
+// cambiaría de cuenta sin cerrar la anterior.
+Route::middleware('guest')->group(function () {
+    Route::get('auth/google/redirect', [GoogleController::class, 'redirect'])->name('google.redirect');
+    Route::get('auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
+});
 
 Route::middleware('auth')->group(function () {
     Route::patch('preferencias', [PreferenceController::class, 'update'])->name('preferences.update');

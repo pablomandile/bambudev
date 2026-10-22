@@ -13,6 +13,8 @@ export type User = {
 export type Auth = {
     user: User | null;
     isAdmin: boolean;
+    // false en las cuentas creadas con Google, que no tienen contraseña.
+    hasPassword: boolean;
 };
 
 export type Passkey = {
