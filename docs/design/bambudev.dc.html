@@ -1,0 +1,2492 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="./support.js"></script>
+    </head>
+    <body>
+        <x-dc>
+            <helmet>
+                <link rel="stylesheet" href="./styles.css" />
+                <link
+                    rel="stylesheet"
+                    href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css"
+                />
+                <style>
+                    html,
+                    body {
+                        margin: 0;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    a {
+                        color: var(--color-accent);
+                    }
+                    a:hover {
+                        color: var(--color-accent-600);
+                    }
+                </style>
+            </helmet>
+            <div style="{{ rootStyle }}">
+                <header
+                    style="
+                        display: flex;
+                        align-items: center;
+                        gap: 36px;
+                        padding: 0 32px;
+                        height: 68px;
+                        flex: none;
+                        border-bottom: 1px solid var(--color-divider);
+                        background: var(--color-bg);
+                        position: relative;
+                        z-index: 5;
+                    "
+                >
+                    <button
+                        onClick="{{ goInicio }}"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            background: none;
+                            border: 0;
+                            padding: 0;
+                            cursor: pointer;
+                            color: inherit;
+                        "
+                    >
+                        <span
+                            style="
+                                width: 38px;
+                                height: 38px;
+                                border-radius: 4px;
+                                background: #fff;
+                                display: grid;
+                                place-items: center;
+                                overflow: hidden;
+                                flex: none;
+                            "
+                            ><img
+                                src="assets/bambudev-b.jpg"
+                                alt=""
+                                style="
+                                    width: 48px;
+                                    height: 48px;
+                                    object-fit: cover;
+                                "
+                        /></span>
+                        <span
+                            style="
+                                font: 600 21px/1 var(--font-heading);
+                                letter-spacing: -0.02em;
+                            "
+                            >bambu<span style="color: var(--color-accent)"
+                                >dev</span
+                            ></span
+                        >
+                    </button>
+                    <nav
+                        style="
+                            display: flex;
+                            align-items: stretch;
+                            gap: 2px;
+                            height: 100%;
+                        "
+                    >
+                        <sc-for
+                            list="{{ tabs }}"
+                            as="t"
+                            hint-placeholder-count="4"
+                        >
+                            <button onClick="{{ t.go }}" style="{{ t.style }}">
+                                <span
+                                    style="
+                                        font: 400 11px/1 var(--font-body);
+                                        letter-spacing: 0.08em;
+                                        color: var(--color-muted);
+                                    "
+                                    >{{ t.num }}</span
+                                >
+                                <span>{{ t.label }}</span>
+                            </button>
+                        </sc-for>
+                    </nav>
+                    <div
+                        style="
+                            margin-left: auto;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        "
+                    >
+                        <button
+                            onClick="{{ toggleTheme }}"
+                            title="Cambiar modo"
+                            class="btn btn-secondary btn-icon"
+                        >
+                            <i
+                                class="ph-duotone {{ themeIcon }}"
+                                style="font-size: 19px"
+                            ></i>
+                        </button>
+                        <button
+                            onClick="{{ goAdmin }}"
+                            style="{{ adminBtnStyle }}"
+                        >
+                            <i
+                                class="ph-duotone ph-gear-six"
+                                style="font-size: 18px"
+                            ></i
+                            >Admin
+                        </button>
+                    </div>
+                </header>
+
+                <main
+                    style="
+                        flex: 1;
+                        min-height: 0;
+                        position: relative;
+                        display: flex;
+                        flex-direction: column;
+                    "
+                >
+                    <sc-if
+                        value="{{ isInicio }}"
+                        hint-placeholder-val="{{ true }}"
+                    >
+                        <div style="{{ wallStyle }}">
+                            <sc-if
+                                value="{{ isLauncher }}"
+                                hint-placeholder-val="{{ true }}"
+                            >
+                                <div
+                                    style="
+                                        flex: 1;
+                                        min-height: 0;
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        justify-content: center;
+                                        gap: clamp(8px, 2.2vh, 30px);
+                                        padding: clamp(8px, 2vh, 24px) 32px 4px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            width: 100%;
+                                            text-align: center;
+                                            display: flex;
+                                            flex-direction: column;
+                                            gap: 6px;
+                                            align-items: center;
+                                        "
+                                    >
+                                        <div
+                                            style="
+                                                font: 600
+                                                    clamp(
+                                                        40px,
+                                                        8.5vh,
+                                                        104px
+                                                    )/0.95
+                                                    var(--font-heading);
+                                                letter-spacing: -0.04em;
+                                                font-variant-numeric: tabular-nums;
+                                            "
+                                        >
+                                            {{ time }}
+                                        </div>
+                                        <div
+                                            style="
+                                                font-size: 16px;
+                                                color: var(--wall-muted);
+                                                letter-spacing: 0.02em;
+                                                white-space: nowrap;
+                                            "
+                                        >
+                                            {{ dateStr }}
+                                        </div>
+                                        <div
+                                            style="
+                                                font: italic 400
+                                                    clamp(17px, 2.6vh, 22px)/1.3
+                                                    var(--font-body);
+                                                margin-top: clamp(
+                                                    0px,
+                                                    0.6vh,
+                                                    6px
+                                                );
+                                                white-space: nowrap;
+                                            "
+                                        >
+                                            {{ greeting }}
+                                            <span
+                                                style="color: var(--wall-muted)"
+                                                >{{ subline }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    <label
+                                        style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 10px;
+                                            width: min(480px, 100%);
+                                            height: 48px;
+                                            padding: 0 16px;
+                                            background: var(--color-surface);
+                                            border: 1px solid
+                                                var(--color-divider);
+                                            border-radius: 4px;
+                                            color: var(--color-text);
+                                            box-shadow: var(--shadow-sm);
+                                        "
+                                    >
+                                        <i
+                                            class="ph-duotone ph-magnifying-glass"
+                                            style="
+                                                font-size: 20px;
+                                                color: var(--color-accent);
+                                            "
+                                        ></i>
+                                        <input
+                                            ref="{{ searchRef }}"
+                                            value="{{ query }}"
+                                            onChange="{{ onQuery }}"
+                                            onKeyDown="{{ onSearchKey }}"
+                                            placeholder="Busca una app… prueba con «pelis»"
+                                            style="
+                                                flex: 1;
+                                                min-width: 0;
+                                                border: 0;
+                                                background: transparent;
+                                                font: inherit;
+                                                font-size: 16px;
+                                                color: inherit;
+                                                outline: none;
+                                            "
+                                        />
+                                        <span
+                                            style="
+                                                font-size: 12px;
+                                                color: var(--color-muted);
+                                                border: 1px solid
+                                                    var(--color-divider);
+                                                padding: 1px 7px;
+                                                border-radius: 2px;
+                                            "
+                                            >/</span
+                                        >
+                                    </label>
+                                    <div
+                                        onPointerDown="{{ onPD }}"
+                                        onPointerUp="{{ onPU }}"
+                                        style="
+                                            flex: none;
+                                            width: min(760px, 100%);
+                                            overflow: hidden;
+                                            touch-action: pan-y;
+                                        "
+                                    >
+                                        <div style="{{ stripStyle }}">
+                                            <sc-for
+                                                list="{{ pages }}"
+                                                as="pg"
+                                                hint-placeholder-count="1"
+                                            >
+                                                <div
+                                                    style="
+                                                        flex: 0 0 100%;
+                                                        display: grid;
+                                                        grid-template-columns: repeat(
+                                                            6,
+                                                            minmax(0, 1fr)
+                                                        );
+                                                        grid-template-rows: repeat(
+                                                            2,
+                                                            auto
+                                                        );
+                                                        row-gap: clamp(
+                                                            4px,
+                                                            1.4vh,
+                                                            16px
+                                                        );
+                                                        column-gap: 8px;
+                                                    "
+                                                >
+                                                    <sc-for
+                                                        list="{{ pg.apps }}"
+                                                        as="app"
+                                                        hint-placeholder-count="8"
+                                                    >
+                                                        <button
+                                                            onClick="{{ app.open }}"
+                                                            style="
+                                                                display: flex;
+                                                                flex-direction: column;
+                                                                align-items: center;
+                                                                justify-content: flex-start;
+                                                                gap: 10px;
+                                                                background: none;
+                                                                border: 0;
+                                                                padding: 6px 2px;
+                                                                cursor: pointer;
+                                                                color: inherit;
+                                                                font: inherit;
+                                                                transition: transform
+                                                                    0.18s;
+                                                                border-radius: 4px;
+                                                            "
+                                                            style-hover="transform:translateY(-4px)"
+                                                        >
+                                                            <span
+                                                                style="{{ app.tile }}"
+                                                                ><i
+                                                                    class="ph-duotone {{ app.icon }}"
+                                                                ></i
+                                                            ></span>
+                                                            <span
+                                                                style="
+                                                                    font-size: 14px;
+                                                                    line-height: 1.2;
+                                                                    text-align: center;
+                                                                "
+                                                                >{{ app.name
+                                                                }}</span
+                                                            >
+                                                        </button>
+                                                    </sc-for>
+                                                </div>
+                                            </sc-for>
+                                        </div>
+                                    </div>
+                                    <sc-if value="{{ noResults }}"
+                                        ><div
+                                            style="
+                                                font: italic 18px
+                                                    var(--font-body);
+                                                color: var(--wall-muted);
+                                                margin-top: -200px;
+                                                height: 180px;
+                                            "
+                                        >
+                                            Nada por aquí con «{{ query }}».
+                                            ¿Buscamos en
+                                            <a href="#" onClick="{{ goHerr }}"
+                                                >Herramientas</a
+                                            >?
+                                        </div></sc-if
+                                    >
+                                    <div
+                                        style="
+                                            display: flex;
+                                            gap: 10px;
+                                            align-items: center;
+                                            height: 10px;
+                                        "
+                                    >
+                                        <sc-for list="{{ dots }}" as="d"
+                                            ><button
+                                                onClick="{{ d.go }}"
+                                                aria-label="{{ d.label }}"
+                                                style="{{ d.style }}"
+                                            ></button
+                                        ></sc-for>
+                                    </div>
+                                </div>
+                                <div
+                                    style="
+                                        flex: none;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                        gap: 20px;
+                                        padding: 12px 32px 20px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 10px;
+                                            min-width: 0;
+                                            flex-wrap: wrap;
+                                        "
+                                    >
+                                        <span
+                                            style="
+                                                font-size: 11px;
+                                                letter-spacing: 0.1em;
+                                                text-transform: uppercase;
+                                                color: var(--wall-muted);
+                                                margin-right: 4px;
+                                            "
+                                            >Recientes</span
+                                        >
+                                        <sc-for
+                                            list="{{ recents }}"
+                                            as="r"
+                                            hint-placeholder-count="3"
+                                        >
+                                            <button
+                                                onClick="{{ r.open }}"
+                                                style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    gap: 8px;
+                                                    padding: 4px 12px 4px 4px;
+                                                    border: 1px solid
+                                                        var(--color-divider);
+                                                    background: color-mix(
+                                                        in srgb,
+                                                        currentColor 5%,
+                                                        transparent
+                                                    );
+                                                    border-radius: 4px;
+                                                    color: inherit;
+                                                    font: inherit;
+                                                    font-size: 13px;
+                                                    cursor: pointer;
+                                                "
+                                                style-hover="background:color-mix(in srgb, currentColor 11%, transparent)"
+                                            >
+                                                <span style="{{ r.tileSm }}"
+                                                    ><i
+                                                        class="ph-duotone {{ r.icon }}"
+                                                    ></i></span
+                                                >{{ r.name }}
+                                            </button>
+                                        </sc-for>
+                                    </div>
+                                    <div
+                                        style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 8px;
+                                        "
+                                    >
+                                        <span
+                                            style="
+                                                font-size: 11px;
+                                                letter-spacing: 0.1em;
+                                                text-transform: uppercase;
+                                                color: var(--wall-muted);
+                                                margin-right: 4px;
+                                            "
+                                            >Fondo</span
+                                        >
+                                        <sc-for
+                                            list="{{ walls }}"
+                                            as="w"
+                                            hint-placeholder-count="4"
+                                            ><button
+                                                onClick="{{ w.go }}"
+                                                title="{{ w.label }}"
+                                                style="{{ w.style }}"
+                                            ></button
+                                        ></sc-for>
+                                    </div>
+                                </div>
+                            </sc-if>
+
+                            <sc-if value="{{ isDesk }}">
+                                <div
+                                    style="
+                                        flex: 1;
+                                        min-height: 0;
+                                        display: grid;
+                                        grid-template-columns: minmax(
+                                                0,
+                                                1fr
+                                            ) 340px;
+                                        gap: 32px;
+                                        padding: 28px 32px;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            display: flex;
+                                            flex-direction: column;
+                                            min-height: 0;
+                                            gap: 16px;
+                                        "
+                                    >
+                                        <div
+                                            onPointerDown="{{ onPD }}"
+                                            onPointerUp="{{ onPU }}"
+                                            style="
+                                                flex: 1;
+                                                min-height: 0;
+                                                overflow: hidden;
+                                                touch-action: pan-y;
+                                            "
+                                        >
+                                            <div style="{{ stripStyle }}">
+                                                <sc-for
+                                                    list="{{ pages }}"
+                                                    as="pg"
+                                                    hint-placeholder-count="1"
+                                                >
+                                                    <div
+                                                        style="
+                                                            flex: 0 0 100%;
+                                                            display: grid;
+                                                            grid-auto-flow: column;
+                                                            grid-template-rows: repeat(
+                                                                4,
+                                                                104px
+                                                            );
+                                                            grid-auto-columns: 100px;
+                                                            gap: 14px 10px;
+                                                            align-content: start;
+                                                        "
+                                                    >
+                                                        <sc-for
+                                                            list="{{ pg.apps }}"
+                                                            as="app"
+                                                            hint-placeholder-count="8"
+                                                        >
+                                                            <button
+                                                                onClick="{{ app.open }}"
+                                                                style="
+                                                                    display: flex;
+                                                                    flex-direction: column;
+                                                                    align-items: center;
+                                                                    gap: 8px;
+                                                                    background: none;
+                                                                    border: 0;
+                                                                    padding: 8px
+                                                                        2px;
+                                                                    cursor: pointer;
+                                                                    color: inherit;
+                                                                    font: inherit;
+                                                                    border-radius: 4px;
+                                                                "
+                                                                style-hover="background:color-mix(in srgb, currentColor 9%, transparent)"
+                                                            >
+                                                                <span
+                                                                    style="{{ app.tile }}"
+                                                                    ><i
+                                                                        class="ph-duotone {{ app.icon }}"
+                                                                    ></i
+                                                                ></span>
+                                                                <span
+                                                                    style="
+                                                                        font-size: 13px;
+                                                                        line-height: 1.2;
+                                                                        text-align: center;
+                                                                    "
+                                                                    >{{ app.name
+                                                                    }}</span
+                                                                >
+                                                            </button>
+                                                        </sc-for>
+                                                    </div>
+                                                </sc-for>
+                                            </div>
+                                        </div>
+                                        <sc-if value="{{ noResults }}"
+                                            ><div
+                                                style="
+                                                    font: italic 18px
+                                                        var(--font-body);
+                                                    color: var(--wall-muted);
+                                                "
+                                            >
+                                                Nada por aquí con «{{ query }}».
+                                            </div></sc-if
+                                        >
+                                        <div
+                                            style="
+                                                display: flex;
+                                                gap: 10px;
+                                                align-items: center;
+                                                height: 10px;
+                                            "
+                                        >
+                                            <sc-for list="{{ dots }}" as="d"
+                                                ><button
+                                                    onClick="{{ d.go }}"
+                                                    aria-label="{{ d.label }}"
+                                                    style="{{ d.style }}"
+                                                ></button
+                                            ></sc-for>
+                                        </div>
+                                    </div>
+                                    <aside
+                                        style="
+                                            display: flex;
+                                            flex-direction: column;
+                                            gap: 14px;
+                                            min-height: 0;
+                                            color: var(--color-text);
+                                        "
+                                    >
+                                        <div
+                                            style="
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                border-radius: 4px;
+                                                padding: 22px;
+                                                box-shadow: var(--shadow-md);
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    font: 600 64px/0.95
+                                                        var(--font-heading);
+                                                    letter-spacing: -0.04em;
+                                                    font-variant-numeric: tabular-nums;
+                                                "
+                                            >
+                                                {{ time }}
+                                            </div>
+                                            <div
+                                                style="
+                                                    font-size: 14px;
+                                                    color: var(--color-muted);
+                                                    margin-top: 8px;
+                                                "
+                                            >
+                                                {{ dateStr }}
+                                            </div>
+                                            <div
+                                                style="
+                                                    font: italic 19px/1.3
+                                                        var(--font-body);
+                                                    margin-top: 14px;
+                                                "
+                                            >
+                                                {{ greeting }}<br /><span
+                                                    style="
+                                                        color: var(
+                                                            --color-muted
+                                                        );
+                                                    "
+                                                    >{{ subline }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                        <label
+                                            style="
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 10px;
+                                                height: 46px;
+                                                padding: 0 14px;
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                border-radius: 4px;
+                                                box-shadow: var(--shadow-md);
+                                            "
+                                        >
+                                            <i
+                                                class="ph-duotone ph-magnifying-glass"
+                                                style="
+                                                    font-size: 19px;
+                                                    color: var(--color-accent);
+                                                "
+                                            ></i>
+                                            <input
+                                                ref="{{ searchRef }}"
+                                                value="{{ query }}"
+                                                onChange="{{ onQuery }}"
+                                                onKeyDown="{{ onSearchKey }}"
+                                                placeholder="Buscar en el escritorio"
+                                                style="
+                                                    flex: 1;
+                                                    min-width: 0;
+                                                    border: 0;
+                                                    background: transparent;
+                                                    font: inherit;
+                                                    font-size: 15px;
+                                                    color: inherit;
+                                                    outline: none;
+                                                "
+                                            />
+                                        </label>
+                                        <div
+                                            style="
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                border-radius: 4px;
+                                                padding: 18px 18px 10px;
+                                                box-shadow: var(--shadow-md);
+                                                display: flex;
+                                                flex-direction: column;
+                                                gap: 4px;
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    font-size: 11px;
+                                                    letter-spacing: 0.1em;
+                                                    text-transform: uppercase;
+                                                    color: var(
+                                                        --color-accent-700
+                                                    );
+                                                    margin-bottom: 6px;
+                                                "
+                                            >
+                                                Abiertas hace poco
+                                            </div>
+                                            <sc-for
+                                                list="{{ recents }}"
+                                                as="r"
+                                                hint-placeholder-count="3"
+                                            >
+                                                <button
+                                                    onClick="{{ r.open }}"
+                                                    style="
+                                                        display: flex;
+                                                        align-items: center;
+                                                        gap: 12px;
+                                                        padding: 6px;
+                                                        margin: 0 -6px;
+                                                        border: 0;
+                                                        background: none;
+                                                        border-radius: 4px;
+                                                        color: inherit;
+                                                        font: inherit;
+                                                        text-align: left;
+                                                        cursor: pointer;
+                                                    "
+                                                    style-hover="background:var(--color-hover)"
+                                                >
+                                                    <span style="{{ r.tileMd }}"
+                                                        ><i
+                                                            class="ph-duotone {{ r.icon }}"
+                                                        ></i
+                                                    ></span>
+                                                    <span
+                                                        style="
+                                                            display: flex;
+                                                            flex-direction: column;
+                                                        "
+                                                        ><span
+                                                            style="
+                                                                font-size: 15px;
+                                                            "
+                                                            >{{ r.name }}</span
+                                                        ><span
+                                                            style="
+                                                                font-size: 12px;
+                                                                color: var(
+                                                                    --color-muted
+                                                                );
+                                                            "
+                                                            >{{ r.cat }}</span
+                                                        ></span
+                                                    >
+                                                </button>
+                                            </sc-for>
+                                        </div>
+                                        <div
+                                            style="
+                                                margin-top: auto;
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 8px;
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                border-radius: 4px;
+                                                padding: 12px 14px;
+                                                box-shadow: var(--shadow-md);
+                                            "
+                                        >
+                                            <span
+                                                style="
+                                                    font-size: 11px;
+                                                    letter-spacing: 0.1em;
+                                                    text-transform: uppercase;
+                                                    color: var(--color-muted);
+                                                    margin-right: auto;
+                                                "
+                                                >Fondo</span
+                                            >
+                                            <sc-for
+                                                list="{{ walls }}"
+                                                as="w"
+                                                hint-placeholder-count="4"
+                                                ><button
+                                                    onClick="{{ w.go }}"
+                                                    title="{{ w.label }}"
+                                                    style="{{ w.style }}"
+                                                ></button
+                                            ></sc-for>
+                                        </div>
+                                    </aside>
+                                </div>
+                            </sc-if>
+
+                            <sc-if value="{{ isPortada }}">
+                                <div
+                                    style="
+                                        flex: 1;
+                                        min-height: 0;
+                                        display: flex;
+                                        flex-direction: column;
+                                        padding: 22px 40px 0;
+                                    "
+                                >
+                                    <div
+                                        style="
+                                            border-top: 3px solid currentColor;
+                                            border-bottom: 1px solid
+                                                currentColor;
+                                            padding: 8px 0 7px;
+                                            display: flex;
+                                            justify-content: space-between;
+                                            gap: 20px;
+                                            font-size: 12px;
+                                            letter-spacing: 0.08em;
+                                            text-transform: uppercase;
+                                            flex-wrap: wrap;
+                                        "
+                                    >
+                                        <span>{{ dateLong }}</span
+                                        ><span>Edición de la {{ edition }}</span
+                                        ><span
+                                            >{{ appCount }} apps en tu kiosco ·
+                                            Entrada libre</span
+                                        >
+                                    </div>
+                                    <div
+                                        style="
+                                            display: grid;
+                                            grid-template-columns: minmax(
+                                                    0,
+                                                    1fr
+                                                ) auto;
+                                            gap: 40px;
+                                            align-items: end;
+                                            padding: clamp(16px, 4vh, 40px) 0
+                                                clamp(14px, 3vh, 28px);
+                                        "
+                                    >
+                                        <div>
+                                            <div
+                                                style="
+                                                    font: 600
+                                                        clamp(
+                                                            44px,
+                                                            9vh,
+                                                            92px
+                                                        )/0.98
+                                                        var(--font-heading);
+                                                    letter-spacing: -0.035em;
+                                                    text-wrap: balance;
+                                                "
+                                            >
+                                                {{ greeting }}
+                                            </div>
+                                            <div
+                                                style="
+                                                    font: italic 400
+                                                        clamp(
+                                                            19px,
+                                                            2.6vh,
+                                                            26px
+                                                        )/1.3
+                                                        var(--font-body);
+                                                    color: var(--wall-muted);
+                                                    margin-top: 12px;
+                                                "
+                                            >
+                                                {{ subline }} Tu día, en un
+                                                clic.
+                                            </div>
+                                        </div>
+                                        <div
+                                            style="
+                                                display: flex;
+                                                flex-direction: column;
+                                                align-items: flex-end;
+                                                gap: 12px;
+                                            "
+                                        >
+                                            <div
+                                                style="
+                                                    font: 600 48px/1
+                                                        var(--font-heading);
+                                                    letter-spacing: -0.03em;
+                                                    font-variant-numeric: tabular-nums;
+                                                "
+                                            >
+                                                {{ time }}
+                                            </div>
+                                            <label
+                                                style="
+                                                    display: flex;
+                                                    align-items: center;
+                                                    gap: 8px;
+                                                    width: 280px;
+                                                    height: 40px;
+                                                    padding: 0 12px;
+                                                    border-bottom: 1.5px solid
+                                                        currentColor;
+                                                "
+                                            >
+                                                <i
+                                                    class="ph-duotone ph-magnifying-glass"
+                                                    style="
+                                                        font-size: 18px;
+                                                        color: var(
+                                                            --color-accent
+                                                        );
+                                                    "
+                                                ></i>
+                                                <input
+                                                    ref="{{ searchRef }}"
+                                                    value="{{ query }}"
+                                                    onChange="{{ onQuery }}"
+                                                    onKeyDown="{{ onSearchKey }}"
+                                                    placeholder="Buscar en la portada"
+                                                    style="
+                                                        flex: 1;
+                                                        min-width: 0;
+                                                        border: 0;
+                                                        background: transparent;
+                                                        font: inherit;
+                                                        font-size: 15px;
+                                                        color: inherit;
+                                                        outline: none;
+                                                    "
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="
+                                            font-size: 11px;
+                                            letter-spacing: 0.1em;
+                                            text-transform: uppercase;
+                                            color: var(--wall-muted);
+                                            margin-bottom: 12px;
+                                        "
+                                    >
+                                        Índice de apps
+                                    </div>
+                                    <div
+                                        onPointerDown="{{ onPD }}"
+                                        onPointerUp="{{ onPU }}"
+                                        style="
+                                            flex: 1;
+                                            min-height: 0;
+                                            overflow: hidden;
+                                            touch-action: pan-y;
+                                        "
+                                    >
+                                        <div style="{{ stripStyle }}">
+                                            <sc-for
+                                                list="{{ pages }}"
+                                                as="pg"
+                                                hint-placeholder-count="1"
+                                            >
+                                                <div
+                                                    style="
+                                                        flex: 0 0 100%;
+                                                        display: grid;
+                                                        grid-template-columns: repeat(
+                                                            6,
+                                                            minmax(0, 140px)
+                                                        );
+                                                        grid-template-rows: repeat(
+                                                            2,
+                                                            auto
+                                                        );
+                                                        gap: 18px 12px;
+                                                        align-content: start;
+                                                    "
+                                                >
+                                                    <sc-for
+                                                        list="{{ pg.apps }}"
+                                                        as="app"
+                                                        hint-placeholder-count="8"
+                                                    >
+                                                        <button
+                                                            onClick="{{ app.open }}"
+                                                            style="
+                                                                display: flex;
+                                                                flex-direction: column;
+                                                                align-items: flex-start;
+                                                                gap: 10px;
+                                                                background: none;
+                                                                border: 0;
+                                                                padding: 0;
+                                                                cursor: pointer;
+                                                                color: inherit;
+                                                                font: inherit;
+                                                                text-align: left;
+                                                                transition: transform
+                                                                    0.18s;
+                                                            "
+                                                            style-hover="transform:translateY(-3px)"
+                                                        >
+                                                            <span
+                                                                style="{{ app.tile }}"
+                                                                ><i
+                                                                    class="ph-duotone {{ app.icon }}"
+                                                                ></i
+                                                            ></span>
+                                                            <span
+                                                                style="
+                                                                    display: flex;
+                                                                    flex-direction: column;
+                                                                    gap: 1px;
+                                                                "
+                                                                ><span
+                                                                    style="
+                                                                        font: 600
+                                                                            15px/1.2
+                                                                            var(
+                                                                                --font-heading
+                                                                            );
+                                                                    "
+                                                                    >{{ app.name
+                                                                    }}</span
+                                                                ><span
+                                                                    style="
+                                                                        font-size: 12px;
+                                                                        color: var(
+                                                                            --wall-muted
+                                                                        );
+                                                                    "
+                                                                    >{{ app.cat
+                                                                    }}</span
+                                                                ></span
+                                                            >
+                                                        </button>
+                                                    </sc-for>
+                                                </div>
+                                            </sc-for>
+                                        </div>
+                                    </div>
+                                    <sc-if value="{{ noResults }}"
+                                        ><div
+                                            style="
+                                                font: italic 18px
+                                                    var(--font-body);
+                                                color: var(--wall-muted);
+                                                margin-bottom: auto;
+                                            "
+                                        >
+                                            Sin noticias de «{{ query }}».
+                                            Prueba otra palabra.
+                                        </div></sc-if
+                                    >
+                                    <div
+                                        style="
+                                            flex: none;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            gap: 20px;
+                                            padding: 12px 0 20px;
+                                        "
+                                    >
+                                        <div
+                                            style="
+                                                display: flex;
+                                                gap: 10px;
+                                                align-items: center;
+                                                height: 10px;
+                                                min-width: 60px;
+                                            "
+                                        >
+                                            <sc-for list="{{ dots }}" as="d"
+                                                ><button
+                                                    onClick="{{ d.go }}"
+                                                    aria-label="{{ d.label }}"
+                                                    style="{{ d.style }}"
+                                                ></button
+                                            ></sc-for>
+                                        </div>
+                                        <div
+                                            style="
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 10px;
+                                                padding: 8px 10px;
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                color: var(--color-text);
+                                                border-radius: 4px;
+                                                box-shadow: var(--shadow-lg);
+                                            "
+                                        >
+                                            <sc-for
+                                                list="{{ recents }}"
+                                                as="r"
+                                                hint-placeholder-count="3"
+                                            >
+                                                <button
+                                                    onClick="{{ r.open }}"
+                                                    title="{{ r.name }}"
+                                                    style="
+                                                        background: none;
+                                                        border: 0;
+                                                        padding: 0;
+                                                        cursor: pointer;
+                                                        color: inherit;
+                                                        transition: transform
+                                                            0.18s;
+                                                    "
+                                                    style-hover="transform:translateY(-4px)"
+                                                >
+                                                    <span
+                                                        style="{{ r.tileDock }}"
+                                                        ><i
+                                                            class="ph-duotone {{ r.icon }}"
+                                                        ></i
+                                                    ></span>
+                                                </button>
+                                            </sc-for>
+                                            <span
+                                                style="
+                                                    width: 1px;
+                                                    align-self: stretch;
+                                                    background: var(
+                                                        --color-divider
+                                                    );
+                                                    margin: 0 4px;
+                                                "
+                                            ></span>
+                                            <sc-for
+                                                list="{{ walls }}"
+                                                as="w"
+                                                hint-placeholder-count="4"
+                                                ><button
+                                                    onClick="{{ w.go }}"
+                                                    title="{{ w.label }}"
+                                                    style="{{ w.style }}"
+                                                ></button
+                                            ></sc-for>
+                                        </div>
+                                        <div style="min-width: 60px"></div>
+                                    </div>
+                                </div>
+                            </sc-if>
+                        </div>
+                    </sc-if>
+
+                    <sc-if value="{{ isHerr }}">
+                        <div style="flex: 1; overflow: auto">
+                            <div
+                                style="
+                                    max-width: 1180px;
+                                    margin: 0 auto;
+                                    padding: 56px 40px 96px;
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 32px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: flex-end;
+                                        gap: 32px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <div style="max-width: 620px">
+                                        <div
+                                            style="
+                                                font-size: 11px;
+                                                letter-spacing: 0.1em;
+                                                text-transform: uppercase;
+                                                color: var(--color-accent-700);
+                                                margin-bottom: 10px;
+                                            "
+                                        >
+                                            Catálogo
+                                        </div>
+                                        <h1
+                                            style="
+                                                font-size: 56px;
+                                                margin: 0 0 12px;
+                                                letter-spacing: -0.03em;
+                                            "
+                                        >
+                                            Herramientas
+                                        </h1>
+                                        <p
+                                            style="
+                                                font-size: 18px;
+                                                color: var(--color-muted);
+                                                margin: 0;
+                                                text-wrap: pretty;
+                                            "
+                                        >
+                                            {{ herrLead }}
+                                        </p>
+                                    </div>
+                                    <label
+                                        style="
+                                            display: flex;
+                                            align-items: center;
+                                            gap: 10px;
+                                            width: min(340px, 100%);
+                                            height: 44px;
+                                            padding: 0 14px;
+                                            background: var(--color-surface);
+                                            border: 1px solid
+                                                var(--color-divider);
+                                            border-radius: 4px;
+                                        "
+                                    >
+                                        <i
+                                            class="ph-duotone ph-magnifying-glass"
+                                            style="
+                                                font-size: 19px;
+                                                color: var(--color-accent);
+                                            "
+                                        ></i>
+                                        <input
+                                            value="{{ toolQuery }}"
+                                            onChange="{{ onToolQuery }}"
+                                            placeholder="Filtrar herramientas"
+                                            style="
+                                                flex: 1;
+                                                min-width: 0;
+                                                border: 0;
+                                                background: transparent;
+                                                font: inherit;
+                                                font-size: 15px;
+                                                color: inherit;
+                                                outline: none;
+                                            "
+                                        />
+                                    </label>
+                                </div>
+                                <div
+                                    style="
+                                        display: flex;
+                                        gap: 8px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <sc-for
+                                        list="{{ catChips }}"
+                                        as="c"
+                                        hint-placeholder-count="6"
+                                        ><button
+                                            onClick="{{ c.go }}"
+                                            style="{{ c.style }}"
+                                        >
+                                            {{ c.label }}<span
+                                                style="
+                                                    opacity: 0.6;
+                                                    font-size: 12px;
+                                                "
+                                                >{{ c.count }}</span
+                                            >
+                                        </button></sc-for
+                                    >
+                                </div>
+                                <div
+                                    style="
+                                        display: grid;
+                                        grid-template-columns: repeat(
+                                            auto-fill,
+                                            minmax(250px, 1fr)
+                                        );
+                                        gap: 20px;
+                                    "
+                                >
+                                    <sc-for
+                                        list="{{ toolList }}"
+                                        as="a"
+                                        hint-placeholder-count="6"
+                                    >
+                                        <div
+                                            style="
+                                                display: flex;
+                                                flex-direction: column;
+                                                gap: 14px;
+                                                padding: 22px;
+                                                background: var(
+                                                    --color-surface
+                                                );
+                                                border-radius: 4px;
+                                                transition:
+                                                    box-shadow 0.2s,
+                                                    transform 0.2s;
+                                            "
+                                            style-hover="box-shadow:var(--shadow-md);transform:translateY(-2px)"
+                                        >
+                                            <div
+                                                style="
+                                                    display: flex;
+                                                    justify-content: space-between;
+                                                    align-items: flex-start;
+                                                "
+                                            >
+                                                <span style="{{ a.tile }}"
+                                                    ><i
+                                                        class="ph-duotone {{ a.icon }}"
+                                                    ></i
+                                                ></span>
+                                                <sc-if value="{{ a.isRecent }}"
+                                                    ><span
+                                                        class="tag tag-accent"
+                                                        >Reciente</span
+                                                    ></sc-if
+                                                >
+                                            </div>
+                                            <div>
+                                                <div
+                                                    style="
+                                                        font-size: 10px;
+                                                        letter-spacing: 0.1em;
+                                                        text-transform: uppercase;
+                                                        color: var(
+                                                            --color-accent-700
+                                                        );
+                                                        margin-bottom: 4px;
+                                                    "
+                                                >
+                                                    {{ a.cat }}
+                                                </div>
+                                                <div
+                                                    style="
+                                                        font: 600 21px/1.2
+                                                            var(--font-heading);
+                                                    "
+                                                >
+                                                    {{ a.name }}
+                                                </div>
+                                            </div>
+                                            <p
+                                                style="
+                                                    margin: 0;
+                                                    font-size: 14px;
+                                                    color: var(--color-muted);
+                                                    flex: 1;
+                                                    text-wrap: pretty;
+                                                "
+                                            >
+                                                {{ a.desc }}
+                                            </p>
+                                            <div
+                                                style="
+                                                    display: flex;
+                                                    justify-content: space-between;
+                                                    align-items: center;
+                                                "
+                                            >
+                                                <button
+                                                    onClick="{{ a.open }}"
+                                                    class="btn btn-primary"
+                                                >
+                                                    Abrir<i
+                                                        class="ph-duotone ph-arrow-up-right"
+                                                    ></i>
+                                                </button>
+                                                <span
+                                                    style="
+                                                        font-size: 12px;
+                                                        color: var(
+                                                            --color-muted
+                                                        );
+                                                    "
+                                                    >{{ a.homeLabel }}</span
+                                                >
+                                            </div>
+                                        </div>
+                                    </sc-for>
+                                </div>
+                                <sc-if value="{{ noTools }}"
+                                    ><p
+                                        style="
+                                            font: italic 20px var(--font-body);
+                                            color: var(--color-muted);
+                                        "
+                                    >
+                                        Ninguna herramienta coincide. ¿Y si la
+                                        inventamos?
+                                        <a href="#" onClick="{{ goAyuda }}"
+                                            >Sugiérela</a
+                                        >.
+                                    </p></sc-if
+                                >
+                            </div>
+                        </div>
+                    </sc-if>
+
+                    <sc-if value="{{ isAcerca }}">
+                        <div style="flex: 1; overflow: auto">
+                            <div
+                                style="
+                                    max-width: 1180px;
+                                    margin: 0 auto;
+                                    padding: 72px 40px 112px;
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 88px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        display: grid;
+                                        grid-template-columns: minmax(
+                                                0,
+                                                7fr
+                                            ) minmax(0, 4fr);
+                                        gap: 64px;
+                                        align-items: center;
+                                    "
+                                >
+                                    <div>
+                                        <div
+                                            style="
+                                                font-size: 11px;
+                                                letter-spacing: 0.1em;
+                                                text-transform: uppercase;
+                                                color: var(--color-accent-700);
+                                                margin-bottom: 16px;
+                                            "
+                                        >
+                                            Acerca de bambudev
+                                        </div>
+                                        <h1
+                                            style="
+                                                font-size: clamp(
+                                                    40px,
+                                                    5.4vw,
+                                                    72px
+                                                );
+                                                line-height: 1.02;
+                                                letter-spacing: -0.035em;
+                                                margin: 0 0 28px;
+                                                text-wrap: balance;
+                                            "
+                                        >
+                                            Apps pequeñas para que los días
+                                            grandes salgan bien.
+                                        </h1>
+                                        <p
+                                            style="
+                                                font-size: 20px;
+                                                line-height: 1.55;
+                                                max-width: 580px;
+                                                margin: 0;
+                                                text-wrap: pretty;
+                                            "
+                                        >
+                                            Como el bambú: crece rápido, se
+                                            dobla sin romperse y siempre suma un
+                                            tallo más. bambudev reúne
+                                            herramientas sencillas para las
+                                            cosas de todos los días — la plata,
+                                            la salud, la casa, la mascota, la
+                                            agenda — detrás de una sola puerta.
+                                        </p>
+                                    </div>
+                                    <div
+                                        style="
+                                            background: #fff;
+                                            border-radius: 4px;
+                                            aspect-ratio: 1/1;
+                                            display: grid;
+                                            place-items: center;
+                                            overflow: hidden;
+                                        "
+                                    >
+                                        <img
+                                            src="assets/bambudev-wordmark.png"
+                                            alt="bambudev"
+                                            style="width: 118%; max-width: none"
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    style="
+                                        display: grid;
+                                        grid-template-columns: repeat(
+                                            auto-fit,
+                                            minmax(240px, 1fr)
+                                        );
+                                        gap: 48px;
+                                    "
+                                >
+                                    <div>
+                                        <div
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                color: var(--color-accent-700);
+                                                margin-bottom: 10px;
+                                            "
+                                        >
+                                            01
+                                        </div>
+                                        <h3 style="margin: 0 0 10px">
+                                            Una sola puerta
+                                        </h3>
+                                        <p
+                                            style="
+                                                color: var(--color-muted);
+                                                margin: 0;
+                                                text-wrap: pretty;
+                                            "
+                                        >
+                                            Una cuenta, un inicio, todas tus
+                                            apps. Nada de diez contraseñas para
+                                            diez cosas.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <div
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                color: var(--color-accent-700);
+                                                margin-bottom: 10px;
+                                            "
+                                        >
+                                            02
+                                        </div>
+                                        <h3 style="margin: 0 0 10px">
+                                            Sin manual de instrucciones
+                                        </h3>
+                                        <p
+                                            style="
+                                                color: var(--color-muted);
+                                                margin: 0;
+                                                text-wrap: pretty;
+                                            "
+                                        >
+                                            Si una app necesita tutorial, la
+                                            volvemos a hacer. Abrir y usar, así
+                                            de simple.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <div
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                color: var(--color-accent-700);
+                                                margin-bottom: 10px;
+                                            "
+                                        >
+                                            03
+                                        </div>
+                                        <h3 style="margin: 0 0 10px">
+                                            Crece contigo
+                                        </h3>
+                                        <p
+                                            style="
+                                                color: var(--color-muted);
+                                                margin: 0;
+                                                text-wrap: pretty;
+                                            "
+                                        >
+                                            Cada tanto brota una app nueva.
+                                            Aparece en tu inicio sin que tengas
+                                            que instalar nada.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: flex-end;
+                                        gap: 32px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <blockquote
+                                        style="
+                                            margin: 0;
+                                            font: italic 400
+                                                clamp(26px, 3vw, 38px)/1.25
+                                                var(--font-body);
+                                            max-width: 760px;
+                                            text-wrap: balance;
+                                        "
+                                    >
+                                        «Lo difícil no debería ser encontrar la
+                                        herramienta, sino elegir qué hacer con
+                                        el tiempo que te ahorra.»
+                                    </blockquote>
+                                    <button
+                                        onClick="{{ goAyuda }}"
+                                        class="btn btn-primary"
+                                        style="
+                                            font-size: 16px;
+                                            padding: 12px 20px;
+                                        "
+                                    >
+                                        ¿Tienes una idea? Cuéntanosla<i
+                                            class="ph-duotone ph-arrow-right"
+                                        ></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </sc-if>
+
+                    <sc-if value="{{ isAyuda }}">
+                        <div style="flex: 1; overflow: auto">
+                            <div
+                                style="
+                                    max-width: 1180px;
+                                    margin: 0 auto;
+                                    padding: 56px 40px 112px;
+                                    display: grid;
+                                    grid-template-columns: minmax(0, 1fr) 380px;
+                                    gap: 72px;
+                                    align-items: start;
+                                "
+                            >
+                                <div>
+                                    <div
+                                        style="
+                                            font-size: 11px;
+                                            letter-spacing: 0.1em;
+                                            text-transform: uppercase;
+                                            color: var(--color-accent-700);
+                                            margin-bottom: 10px;
+                                        "
+                                    >
+                                        Ayuda
+                                    </div>
+                                    <h1
+                                        style="
+                                            font-size: 56px;
+                                            margin: 0 0 12px;
+                                            letter-spacing: -0.03em;
+                                        "
+                                    >
+                                        ¿Te trabaste?
+                                    </h1>
+                                    <p
+                                        style="
+                                            font-size: 18px;
+                                            color: var(--color-muted);
+                                            margin: 0 0 40px;
+                                        "
+                                    >
+                                        Respiramos hondo y lo resolvemos.
+                                        Empieza por aquí.
+                                    </p>
+                                    <div
+                                        style="
+                                            display: flex;
+                                            flex-direction: column;
+                                            border-top: 1px solid
+                                                var(--color-divider);
+                                        "
+                                    >
+                                        <sc-for
+                                            list="{{ faqs }}"
+                                            as="f"
+                                            hint-placeholder-count="5"
+                                        >
+                                            <div
+                                                style="
+                                                    border-bottom: 1px solid
+                                                        var(--color-divider);
+                                                "
+                                            >
+                                                <button
+                                                    onClick="{{ f.toggle }}"
+                                                    style="
+                                                        width: 100%;
+                                                        display: flex;
+                                                        justify-content: space-between;
+                                                        align-items: center;
+                                                        gap: 20px;
+                                                        padding: 20px 0;
+                                                        background: none;
+                                                        border: 0;
+                                                        color: inherit;
+                                                        font: 600 19px/1.3
+                                                            var(--font-heading);
+                                                        text-align: left;
+                                                        cursor: pointer;
+                                                    "
+                                                    style-hover="color:var(--color-accent-700)"
+                                                >
+                                                    {{ f.q }}<i
+                                                        class="ph-duotone {{ f.icon }}"
+                                                        style="
+                                                            font-size: 20px;
+                                                            color: var(
+                                                                --color-accent
+                                                            );
+                                                            flex: none;
+                                                        "
+                                                    ></i>
+                                                </button>
+                                                <sc-if value="{{ f.open }}"
+                                                    ><p
+                                                        style="
+                                                            margin: 0;
+                                                            padding: 0 48px 22px
+                                                                0;
+                                                            font-size: 16px;
+                                                            color: var(
+                                                                --color-muted
+                                                            );
+                                                            text-wrap: pretty;
+                                                        "
+                                                    >
+                                                        {{ f.a }}
+                                                    </p></sc-if
+                                                >
+                                            </div>
+                                        </sc-for>
+                                    </div>
+                                    <h4 style="margin: 48px 0 16px">
+                                        Atajos de teclado
+                                    </h4>
+                                    <div
+                                        style="
+                                            display: grid;
+                                            grid-template-columns: auto 1fr;
+                                            gap: 10px 18px;
+                                            align-items: center;
+                                            font-size: 15px;
+                                        "
+                                    >
+                                        <span
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                border: 1px solid
+                                                    var(--color-divider);
+                                                padding: 3px 10px;
+                                                border-radius: 2px;
+                                                justify-self: start;
+                                            "
+                                            >/</span
+                                        ><span
+                                            >Buscar una app en el Inicio</span
+                                        >
+                                        <span
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                border: 1px solid
+                                                    var(--color-divider);
+                                                padding: 3px 10px;
+                                                border-radius: 2px;
+                                                justify-self: start;
+                                            "
+                                            >← →</span
+                                        ><span>Cambiar de página de apps</span>
+                                        <span
+                                            style="
+                                                font: 600 13px
+                                                    var(--font-heading);
+                                                border: 1px solid
+                                                    var(--color-divider);
+                                                padding: 3px 10px;
+                                                border-radius: 2px;
+                                                justify-self: start;
+                                            "
+                                            >Esc</span
+                                        ><span>Cerrar una ventana</span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="
+                                        background: var(--color-surface);
+                                        border-radius: 4px;
+                                        padding: 28px;
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 16px;
+                                        position: sticky;
+                                        top: 24px;
+                                    "
+                                >
+                                    <h3 style="margin: 0">Escríbenos</h3>
+                                    <sc-if value="{{ sent }}">
+                                        <p
+                                            style="
+                                                margin: 0;
+                                                font: italic 18px/1.4
+                                                    var(--font-body);
+                                            "
+                                        >
+                                            ¡Recibido! Te respondemos antes de
+                                            que se enfríe el café.
+                                        </p>
+                                    </sc-if>
+                                    <sc-if value="{{ notSent }}">
+                                        <div class="field">
+                                            <label>Tu email</label
+                                            ><input
+                                                class="input"
+                                                placeholder="tu@correo.com"
+                                            />
+                                        </div>
+                                        <div class="field">
+                                            <label>¿Sobre qué app?</label
+                                            ><select class="input">
+                                                <option>General</option>
+                                                <sc-for
+                                                    list="{{ appNames }}"
+                                                    as="n"
+                                                    ><option>
+                                                        {{ n }}
+                                                    </option></sc-for
+                                                >
+                                            </select>
+                                        </div>
+                                        <div class="field">
+                                            <label>Cuéntanos</label
+                                            ><textarea
+                                                class="input"
+                                                placeholder="Pasó esto, esperaba aquello…"
+                                            ></textarea>
+                                        </div>
+                                        <button
+                                            onClick="{{ send }}"
+                                            class="btn btn-primary btn-block"
+                                        >
+                                            Enviar mensaje
+                                        </button>
+                                    </sc-if>
+                                </div>
+                            </div>
+                        </div>
+                    </sc-if>
+
+                    <sc-if value="{{ isAdmin }}">
+                        <div style="flex: 1; overflow: auto">
+                            <div
+                                style="
+                                    max-width: 1240px;
+                                    margin: 0 auto;
+                                    padding: 48px 40px 112px;
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 36px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: flex-end;
+                                        gap: 24px;
+                                        flex-wrap: wrap;
+                                    "
+                                >
+                                    <div>
+                                        <div
+                                            style="
+                                                display: flex;
+                                                gap: 8px;
+                                                align-items: center;
+                                                margin-bottom: 12px;
+                                            "
+                                        >
+                                            <span class="tag tag-accent-2"
+                                                >Área administrativa</span
+                                            ><span
+                                                style="
+                                                    font-size: 13px;
+                                                    color: var(--color-muted);
+                                                    white-space: nowrap;
+                                                "
+                                                >Solo tú ves esto</span
+                                            >
+                                        </div>
+                                        <h1
+                                            style="
+                                                font-size: 48px;
+                                                margin: 0 0 8px;
+                                                letter-spacing: -0.03em;
+                                            "
+                                        >
+                                            Tus apps
+                                        </h1>
+                                        <p
+                                            style="
+                                                font-size: 17px;
+                                                color: var(--color-muted);
+                                                margin: 0;
+                                            "
+                                        >
+                                            Lo que publiques aquí aparece en el
+                                            Inicio al instante. El orden de la
+                                            lista es el orden de los iconos.
+                                        </p>
+                                    </div>
+                                    <sc-if value="{{ flash }}"
+                                        ><div
+                                            style="
+                                                font: italic 17px
+                                                    var(--font-body);
+                                                color: var(--color-accent-700);
+                                                display: flex;
+                                                gap: 8px;
+                                                align-items: center;
+                                            "
+                                        >
+                                            <i
+                                                class="ph-duotone ph-check-circle"
+                                                style="font-size: 20px"
+                                            ></i
+                                            >{{ flash }}
+                                        </div></sc-if
+                                    >
+                                </div>
+                                <div
+                                    style="
+                                        display: grid;
+                                        grid-template-columns: minmax(
+                                                0,
+                                                1fr
+                                            ) 380px;
+                                        gap: 40px;
+                                        align-items: start;
+                                    "
+                                >
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 56px">
+                                                    Orden
+                                                </th>
+                                                <th>App</th>
+                                                <th>Categoría</th>
+                                                <th>En Inicio</th>
+                                                <th style="width: 48px"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <sc-for
+                                                list="{{ adminRows }}"
+                                                as="row"
+                                                hint-placeholder-count="8"
+                                            >
+                                                <tr>
+                                                    <td>
+                                                        <div
+                                                            style="
+                                                                display: flex;
+                                                                flex-direction: column;
+                                                            "
+                                                        >
+                                                            <button
+                                                                onClick="{{ row.up }}"
+                                                                disabled="{{ row.isFirst }}"
+                                                                class="btn btn-ghost"
+                                                                style="
+                                                                    padding: 0
+                                                                        4px;
+                                                                    color: var(
+                                                                        --color-muted
+                                                                    );
+                                                                "
+                                                            >
+                                                                <i
+                                                                    class="ph-duotone ph-caret-up"
+                                                                ></i></button
+                                                            ><button
+                                                                onClick="{{ row.down }}"
+                                                                disabled="{{ row.isLast }}"
+                                                                class="btn btn-ghost"
+                                                                style="
+                                                                    padding: 0
+                                                                        4px;
+                                                                    color: var(
+                                                                        --color-muted
+                                                                    );
+                                                                "
+                                                            >
+                                                                <i
+                                                                    class="ph-duotone ph-caret-down"
+                                                                ></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div
+                                                            style="
+                                                                display: flex;
+                                                                align-items: center;
+                                                                gap: 12px;
+                                                            "
+                                                        >
+                                                            <span
+                                                                style="{{ row.tileMd }}"
+                                                                ><i
+                                                                    class="ph-duotone {{ row.icon }}"
+                                                                ></i
+                                                            ></span>
+                                                            <div
+                                                                style="
+                                                                    min-width: 0;
+                                                                "
+                                                            >
+                                                                <div
+                                                                    style="
+                                                                        font: 600
+                                                                            15px
+                                                                            var(
+                                                                                --font-heading
+                                                                            );
+                                                                    "
+                                                                >
+                                                                    {{ row.name
+                                                                    }}
+                                                                </div>
+                                                                <div
+                                                                    style="
+                                                                        font-size: 12px;
+                                                                        color: var(
+                                                                            --color-muted
+                                                                        );
+                                                                        max-width: 340px;
+                                                                        white-space: nowrap;
+                                                                        overflow: hidden;
+                                                                        text-overflow: ellipsis;
+                                                                    "
+                                                                >
+                                                                    {{ row.desc
+                                                                    }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span
+                                                            class="tag tag-neutral"
+                                                            >{{ row.cat }}</span
+                                                        >
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            onClick="{{ row.toggle }}"
+                                                            aria-label="Mostrar en Inicio"
+                                                            style="{{ row.trackStyle }}"
+                                                        >
+                                                            <span
+                                                                style="{{ row.knobStyle }}"
+                                                            ></span>
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            onClick="{{ row.remove }}"
+                                                            title="Eliminar"
+                                                            class="btn btn-secondary btn-icon"
+                                                            style="
+                                                                width: 32px;
+                                                                height: 32px;
+                                                                color: var(
+                                                                    --color-accent-2-700
+                                                                );
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="ph-duotone ph-trash"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </sc-for>
+                                        </tbody>
+                                    </table>
+                                    <div
+                                        style="
+                                            background: var(--color-surface);
+                                            border-radius: 4px;
+                                            padding: 26px;
+                                            display: flex;
+                                            flex-direction: column;
+                                            gap: 16px;
+                                            position: sticky;
+                                            top: 24px;
+                                        "
+                                    >
+                                        <h3 style="margin: 0">Nueva app</h3>
+                                        <div
+                                            style="
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 14px;
+                                                padding: 14px;
+                                                background: var(--color-bg);
+                                                border-radius: 4px;
+                                            "
+                                        >
+                                            <span style="{{ draftTile }}"
+                                                ><i
+                                                    class="ph-duotone {{ draft.icon }}"
+                                                ></i
+                                            ></span>
+                                            <div>
+                                                <div
+                                                    style="
+                                                        font: 600 17px
+                                                            var(--font-heading);
+                                                    "
+                                                >
+                                                    {{ draftName }}
+                                                </div>
+                                                <div
+                                                    style="
+                                                        font-size: 12px;
+                                                        color: var(
+                                                            --color-muted
+                                                        );
+                                                    "
+                                                >
+                                                    {{ draft.cat }} · vista
+                                                    previa
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label>Nombre</label
+                                            ><input
+                                                class="input"
+                                                value="{{ draft.name }}"
+                                                onChange="{{ setName }}"
+                                                placeholder="ej. ListaSúper"
+                                            />
+                                        </div>
+                                        <div class="field">
+                                            <label>Descripción corta</label
+                                            ><textarea
+                                                class="input"
+                                                value="{{ draft.desc }}"
+                                                onChange="{{ setDesc }}"
+                                                placeholder="¿Qué problema le resuelve a alguien un martes cualquiera?"
+                                                style="min-height: 70px"
+                                            ></textarea>
+                                        </div>
+                                        <div class="field">
+                                            <label>Categoría</label
+                                            ><select
+                                                class="input"
+                                                value="{{ draft.cat }}"
+                                                onChange="{{ setCat }}"
+                                            >
+                                                <sc-for
+                                                    list="{{ catOptions }}"
+                                                    as="c"
+                                                    ><option value="{{ c }}">
+                                                        {{ c }}
+                                                    </option></sc-for
+                                                >
+                                            </select>
+                                        </div>
+                                        <div class="field">
+                                            <label>Icono</label>
+                                            <div
+                                                style="
+                                                    display: grid;
+                                                    grid-template-columns: repeat(
+                                                        8,
+                                                        1fr
+                                                    );
+                                                    gap: 4px;
+                                                "
+                                            >
+                                                <sc-for
+                                                    list="{{ iconOptions }}"
+                                                    as="io"
+                                                    hint-placeholder-count="16"
+                                                    ><button
+                                                        onClick="{{ io.pick }}"
+                                                        style="{{ io.style }}"
+                                                    >
+                                                        <i
+                                                            class="ph-duotone {{ io.icon }}"
+                                                        ></i></button
+                                                ></sc-for>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label>Color</label>
+                                            <div
+                                                style="display: flex; gap: 8px"
+                                            >
+                                                <sc-for
+                                                    list="{{ hueOptions }}"
+                                                    as="h"
+                                                    hint-placeholder-count="8"
+                                                    ><button
+                                                        onClick="{{ h.pick }}"
+                                                        style="{{ h.style }}"
+                                                    ></button
+                                                ></sc-for>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick="{{ publish }}"
+                                            disabled="{{ cantPublish }}"
+                                            class="btn btn-primary btn-block"
+                                        >
+                                            Publicar en el Inicio
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </sc-if>
+
+                    <sc-if value="{{ hasOpen }}">
+                        <div
+                            onClick="{{ closeApp }}"
+                            style="
+                                position: fixed;
+                                inset: 0;
+                                display: grid;
+                                place-items: center;
+                                padding: 20px;
+                                background: rgba(18, 20, 18, 0.5);
+                                z-index: 50;
+                            "
+                        >
+                            <div
+                                onClick="{{ stop }}"
+                                style="
+                                    width: min(440px, 100%);
+                                    background: var(--color-surface);
+                                    color: var(--color-text);
+                                    border-radius: 4px;
+                                    box-shadow: var(--shadow-lg);
+                                    padding: 28px;
+                                    display: flex;
+                                    flex-direction: column;
+                                    gap: 18px;
+                                "
+                            >
+                                <div
+                                    style="
+                                        display: flex;
+                                        gap: 16px;
+                                        align-items: center;
+                                    "
+                                >
+                                    <span style="{{ openApp.tile }}"
+                                        ><i
+                                            class="ph-duotone {{ openApp.icon }}"
+                                        ></i
+                                    ></span>
+                                    <div>
+                                        <div
+                                            style="
+                                                font-size: 10px;
+                                                letter-spacing: 0.1em;
+                                                text-transform: uppercase;
+                                                color: var(--color-accent-700);
+                                            "
+                                        >
+                                            {{ openApp.cat }}
+                                        </div>
+                                        <div
+                                            style="
+                                                font: 600 26px/1.15
+                                                    var(--font-heading);
+                                            "
+                                        >
+                                            {{ openApp.name }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p
+                                    style="
+                                        margin: 0;
+                                        font-size: 16px;
+                                        color: var(--color-muted);
+                                        text-wrap: pretty;
+                                    "
+                                >
+                                    {{ openApp.desc }}
+                                </p>
+                                <div
+                                    style="
+                                        display: flex;
+                                        justify-content: flex-end;
+                                        gap: 10px;
+                                    "
+                                >
+                                    <button
+                                        onClick="{{ closeApp }}"
+                                        class="btn btn-secondary"
+                                        style="white-space: nowrap"
+                                    >
+                                        Ahora no
+                                    </button>
+                                    <button
+                                        onClick="{{ closeApp }}"
+                                        class="btn btn-primary"
+                                    >
+                                        Abrir {{ openApp.name }}<i
+                                            class="ph-duotone ph-arrow-up-right"
+                                        ></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </sc-if>
+                </main>
+            </div>
+        </x-dc>
+        <script
+            type="text/x-dc"
+            data-dc-script
+            data-props='{"layout":{"editor":"enum","options":["launcher","escritorio","portada"],"default":"launcher","tsType":"string","section":"Inicio"},"iconStyle":{"editor":"enum","options":["tinted","ink"],"default":"tinted","tsType":"string","section":"Inicio"},"theme":{"editor":"enum","options":["light","dark"],"default":"light","tsType":"string","section":"Tema"},"accent":{"editor":"enum","options":["bambu","broadsheet"],"default":"bambu","tsType":"string","section":"Tema"},"userName":{"editor":"text","default":"Sofía","tsType":"string","section":"Inicio"}}'
+        >
+            const SEED=[
+            {id:'mibilletera',name:'MiBilletera',cat:'Finanzas',icon:'ph-wallet',hue:150,tags:'plata dinero gastos ahorro',desc:'Gastos, ahorros y ese café que no anotaste. Tus cuentas, en orden y sin drama.'},
+            {id:'misalud',name:'MiSalud',cat:'Salud',icon:'ph-heartbeat',hue:20,tags:'medico turnos remedios',desc:'Turnos, medicación y estudios médicos en un solo lugar. Tu cuerpo te lo agradece.'},
+            {id:'alquilerfacil',name:'AlquilerFácil',cat:'Hogar',icon:'ph-house-line',hue:60,tags:'casa depto contrato',desc:'Contratos, pagos y aumentos de alquiler sin dolores de cabeza.'},
+            {id:'huella',name:'Huella',cat:'Mascotas',icon:'ph-paw-print',hue:85,tags:'perro gato veterinario',desc:'Vacunas, paseos y mimos de tu mascota, todo bien registrado.'},
+            {id:'movieboxd',name:'Movieboxd',cat:'Ocio',icon:'ph-film-slate',hue:330,tags:'pelis peliculas cine series',desc:'Tu diario de películas: lo que viste, lo que amaste y lo que tienes pendiente.'},
+            {id:'escribelo',name:'Escríbelo',cat:'Escritura',icon:'ph-pen-nib',hue:275,tags:'notas ideas texto',desc:'Notas rápidas e ideas sueltas, antes de que se escapen.'},
+            {id:'docbrainer',name:'Docbrainer',cat:'Documentos',icon:'ph-brain',hue:235,tags:'pdf ia preguntas',desc:'Sube un documento y pregúntale lo que quieras. Él lee, tú decides.'},
+            {id:'agendaflex',name:'AgendaFlex',cat:'Organización',icon:'ph-calendar-check',hue:195,tags:'calendario tareas citas',desc:'Una agenda que se adapta a tu día, y no al revés.'}];
+            const CATS=['Finanzas','Salud','Hogar','Mascotas','Ocio','Escritura','Documentos','Organización','Compras','Viajes'];
+            const ICONS=['ph-lightning','ph-shopping-cart','ph-airplane-tilt','ph-cooking-pot','ph-barbell','ph-plant','ph-music-notes','ph-book-open','ph-car','ph-receipt','ph-graduation-cap','ph-baby','ph-timer','ph-chat-circle','ph-camera','ph-gift'];
+            const HUES=[140,20,60,85,330,275,235,195];
+            const THEMES={
+            light:{'--color-bg':'#f3f2f2','--color-surface':'#eae9e9','--color-text':'#201e1d','--color-muted':'#5f5b5a','--color-divider':'rgba(32,30,29,.16)','--color-hover':'rgba(32,30,29,.06)'},
+            dark:{'--color-bg':'#161716','--color-surface':'#222423','--color-text':'#ecebea','--color-muted':'#a6a3a1','--color-divider':'rgba(236,235,234,.16)','--color-hover':'rgba(236,235,234,.07)','--shadow-sm':'0 1px 2px rgba(0,0,0,.4)','--shadow-md':'0 3px 12px rgba(0,0,0,.45)','--shadow-lg':'0 14px 36px rgba(0,0,0,.55)'}};
+            const ACC={
+            bambu:{light:{'--color-accent':'#3b8a2e','--color-accent-600':'#2f7526','--color-accent-700':'#245d1d','--color-accent-100':'#e6f4e0','--color-accent-800':'#1a4416'},
+            dark:{'--color-accent':'#6cbf55','--color-accent-600':'#84cf6d','--color-accent-700':'#a5e08f','--color-accent-100':'#1d2d19','--color-accent-800':'#c4edb4'}},
+            broadsheet:{light:{'--color-accent':'#0088b0','--color-accent-600':'#1186ac','--color-accent-700':'#006786','--color-accent-100':'#e9f8ff','--color-accent-800':'#004961'},
+            dark:{'--color-accent':'#38a6cf','--color-accent-600':'#62c5ee','--color-accent-700':'#99e0ff','--color-accent-100':'#0a303e','--color-accent-800':'#cbeeff'}}};
+            const DARK_EXTRA={'--color-neutral-100':'#2a2c2b','--color-neutral-800':'#d7d3d3','--color-accent-2-100':'#3a1424','--color-accent-2-800':'#ffc0d0','--color-accent-2-700':'#ff90b1'};
+            const WALLS={
+            papel:{label:'Papel',bg:()=>'var(--color-bg)',ink:'var(--color-text)',muted:'var(--color-muted)'},
+            bambu:{label:'Bambú',bg:()=>'repeating-linear-gradient(90deg, transparent 0 58px, color-mix(in srgb, var(--color-accent) 10%, transparent) 58px 66px, transparent 66px 72px), var(--color-bg)',ink:'var(--color-text)',muted:'var(--color-muted)'},
+            trama:{label:'Trama',bg:()=>'radial-gradient(circle, color-mix(in srgb, var(--color-text) 16%, transparent) 1px, transparent 1.7px) 0 0/9px 9px, var(--color-bg)',ink:'var(--color-text)',muted:'var(--color-muted)'},
+            bosque:{label:'Bosque',bg:()=>'repeating-linear-gradient(90deg, transparent 0 58px, rgba(140,200,120,.07) 58px 66px, transparent 66px 72px), #10291c',ink:'#eef2ec',muted:'#a9c0b0',dark:true}};
+            const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+            class Component extends DCLogic {
+              state={tab:'inicio',apps:SEED.map(a=>({...a,visible:true})),recent:['agendaflex','mibilletera','escribelo'],query:'',page:0,wall:'bosque',openId:null,theme:null,cat:'Todas',toolQuery:'',faq:0,sent:false,flash:'',draft:{name:'',desc:'',cat:'Organización',icon:'ph-lightning',hue:140},now:new Date()};
+              searchRef=React.createRef();
+              componentDidMount(){
+                this.t=setInterval(()=>this.setState({now:new Date()}),15000);
+                this.kd=e=>{
+                  if(e.key==='Escape'&&this.state.openId){this.setState({openId:null});return;}
+                  if(this.state.tab!=='inicio'||this.state.openId)return;
+                  const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName);
+                  if(e.key==='/'&&!typing){e.preventDefault();this.searchRef.current&&this.searchRef.current.focus();}
+                  if(!typing&&e.key==='ArrowRight')this.goPage(1);
+                  if(!typing&&e.key==='ArrowLeft')this.goPage(-1);
+                };
+                window.addEventListener('keydown',this.kd);
+              }
+              componentWillUnmount(){clearInterval(this.t);window.removeEventListener('keydown',this.kd);}
+              goPage(d){this.setState(s=>({page:Math.max(0,Math.min((this.pageCount||1)-1,s.page+d))}));}
+              open(id){this.setState(s=>({openId:id,recent:[id,...s.recent.filter(r=>r!==id)].slice(0,4)}));}
+              setDraft(k,v){this.setState(s=>({draft:{...s.draft,[k]:v}}));}
+              move(i,d){this.setState(s=>{const a=[...s.apps];const j=i+d;if(j<0||j>=a.length)return null;[a[i],a[j]]=[a[j],a[i]];return{apps:a};});}
+              renderVals(){
+                const p=this.props,s=this.state;
+                const theme=s.theme||p.theme||'light',dark=theme==='dark';
+                const accent=ACC[p.accent]?p.accent:'bambu',layout=p.layout||'launcher',ink=p.iconStyle==='ink';
+                const name=p.userName||'Sofía';
+                const vars={...THEMES[theme],...ACC[accent][theme],...(dark?DARK_EXTRA:{})};
+                const rootStyle={...vars,height:'100vh',display:'flex',flexDirection:'column',background:'var(--color-bg)',color:'var(--color-text)',fontFamily:'var(--font-body)',overflow:'hidden'};
+                const W=WALLS[s.wall],wallDark=dark||!!W.dark;
+                const wallStyle={flex:1,minHeight:0,position:'relative',display:'flex',flexDirection:'column',overflow:'hidden',background:W.bg(),color:W.ink,'--wall-muted':W.muted};
+                const tile=(a,size,td)=>{
+                  const fluid=size==='fluid';const base={width:fluid?'clamp(54px,10vh,84px)':size,height:fluid?'clamp(54px,10vh,84px)':size,flex:'none',display:'grid',placeItems:'center',borderRadius:4,fontSize:fluid?'clamp(27px,5vh,42px)':Math.round(size*0.5)};
+                  if(ink)return{...base,background:'transparent',color:'inherit',boxShadow:'inset 0 0 0 1.5px currentColor'};
+                  return{...base,background:td?`oklch(0.34 0.07 ${a.hue})`:`oklch(0.92 0.055 ${a.hue})`,color:td?`oklch(0.86 0.11 ${a.hue})`:`oklch(0.44 0.13 ${a.hue})`};
+                };
+                const tileSize={launcher:'fluid',escritorio:60,portada:72}[layout]||84;
+                const mk=(a,size,td=wallDark)=>({...a,tile:tile(a,size,td),tileSm:tile(a,28,td),tileMd:tile(a,40,dark),tileDock:tile(a,48,dark),open:()=>this.open(a.id)});
+                const q=norm(s.query.trim());
+                const vis=s.apps.filter(a=>a.visible);
+                const home=vis.filter(a=>!q||norm(a.name+' '+a.cat+' '+(a.tags||'')+' '+a.desc).includes(q));
+                const per={launcher:12,escritorio:16,portada:12}[layout]||12;
+                const chunks=[];for(let i=0;i<home.length;i+=per)chunks.push(home.slice(i,i+per));
+                if(!chunks.length)chunks.push([]);
+                this.pageCount=chunks.length;
+                const page=Math.min(s.page,chunks.length-1);
+                const pages=chunks.map((c,i)=>({key:i,apps:c.map(a=>mk(a,tileSize))}));
+                const dots=chunks.length>1?chunks.map((_,i)=>({label:'Página '+(i+1),go:()=>this.setState({page:i}),style:{width:i===page?22:8,height:8,borderRadius:4,border:0,padding:0,cursor:'pointer',background:i===page?'var(--color-accent)':'currentColor',opacity:i===page?1:0.3,transition:'all .25s'}})):[];
+                const recents=s.recent.map(id=>s.apps.find(a=>a.id===id)).filter(Boolean).map(a=>mk(a,28));
+                const walls=Object.keys(WALLS).map(k=>({label:WALLS[k].label,go:()=>this.setState({wall:k}),style:{width:24,height:24,borderRadius:2,border:0,padding:0,cursor:'pointer',background:k==='papel'?'var(--color-bg)':WALLS[k].bg(),backgroundSize:k==='trama'?'5px 5px, auto':undefined,boxShadow:s.wall===k?'0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent)':'inset 0 0 0 1px var(--color-divider)'}}));
+                const h=s.now.getHours();
+                const saludo=h<12?'Buen día':h<20?'Buenas tardes':'Buenas noches';
+                const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+                const tabsDef=[['inicio','Inicio'],['herramientas','Herramientas'],['acerca','Acerca de'],['ayuda','Ayuda']];
+                const tabs=tabsDef.map(([id,label],i)=>{const act=s.tab===id;return{label,num:'0'+(i+1),go:()=>this.setState({tab:id}),style:{display:'flex',alignItems:'center',gap:8,height:'100%',padding:'0 16px',background:'none',border:0,borderTop:'3px solid transparent',borderBottom:`3px solid ${act?'var(--color-accent)':'transparent'}`,color:act?'var(--color-text)':'var(--color-muted)',font:'600 15px var(--font-heading)',cursor:'pointer',transition:'color .15s'}};});
+                const adminAct=s.tab==='admin';
+                const cats=['Todas',...Array.from(new Set(vis.map(a=>a.cat)))];
+                const tq=norm(s.toolQuery.trim());
+                const tools=vis.filter(a=>(s.cat==='Todas'||a.cat===s.cat)&&(!tq||norm(a.name+' '+a.cat+' '+(a.tags||'')+' '+a.desc).includes(tq)));
+                const FAQ=[
+                  ['¿Necesito una cuenta para cada app?','No. Con tu cuenta bambudev entras a todas. Una llave, muchas puertas.'],
+                  ['¿Mis datos se comparten entre apps?','Solo si tú lo permites. Cada app guarda lo suyo y te pide permiso antes de cruzar información.'],
+                  ['¿Cómo cambio el fondo del Inicio?','Abajo en el Inicio tienes los cuadraditos de «Fondo». Toca uno y listo, redecoraste.'],
+                  ['Tengo más apps de las que entran en pantalla','El Inicio se pagina solo: desliza, usa las flechas del teclado o toca los puntitos de abajo.'],
+                  ['¿Cómo sugiero una app nueva?','Escríbenos con el formulario de al lado. Las mejores ideas suelen empezar con «sería genial si…».']];
+                const d=s.draft;
+                return{
+                  rootStyle,wallStyle,tabs,searchRef:this.searchRef,
+                  themeIcon:dark?'ph-sun':'ph-moon',toggleTheme:()=>this.setState({theme:dark?'light':'dark'}),
+                  goInicio:()=>this.setState({tab:'inicio'}),goAdmin:()=>this.setState({tab:'admin'}),
+                  goHerr:e=>{e&&e.preventDefault();this.setState({tab:'herramientas',toolQuery:s.query})},
+                  goAyuda:e=>{e&&e.preventDefault&&e.preventDefault();this.setState({tab:'ayuda'})},
+                  adminBtnStyle:{display:'inline-flex',alignItems:'center',gap:6,height:36,padding:'0 12px',borderRadius:2,border:'1px solid var(--color-divider)',background:adminAct?'var(--color-text)':'transparent',color:adminAct?'var(--color-bg)':'var(--color-text)',font:'600 14px var(--font-heading)',cursor:'pointer'},
+                  isInicio:s.tab==='inicio',isHerr:s.tab==='herramientas',isAcerca:s.tab==='acerca',isAyuda:s.tab==='ayuda',isAdmin:adminAct,
+                  isLauncher:layout==='launcher',isDesk:layout==='escritorio',isPortada:layout==='portada',
+                  time:s.now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',hour12:false}),
+                  dateStr:cap(s.now.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'})),
+                  dateLong:s.now.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),
+                  edition:h<12?'mañana':h<20?'tarde':'noche',
+                  greeting:`${saludo}, ${name}.`,subline:'¿Qué resolvemos hoy?',appCount:vis.length,
+                  query:s.query,onQuery:e=>this.setState({query:e.target.value,page:0}),
+                  onSearchKey:e=>{if(e.key==='Enter'&&home[0])this.open(home[0].id);if(e.key==='Escape'){this.setState({query:''});e.target.blur();}},
+                  pages,dots,noResults:!home.length,recents,walls,
+                  stripStyle:{display:'flex',height:'100%',transform:`translateX(-${page*100}%)`,transition:'transform .45s cubic-bezier(.2,.8,.2,1)'},
+                  onPD:e=>{this.px=e.clientX;},onPU:e=>{if(this.px==null)return;const dx=e.clientX-this.px;this.px=null;if(Math.abs(dx)>50)this.goPage(dx<0?1:-1);},
+                  herrLead:`${vis.length} apps (y contando) para que el día a día pese un poco menos. Filtra, curiosea, abre.`,
+                  toolQuery:s.toolQuery,onToolQuery:e=>this.setState({toolQuery:e.target.value}),
+                  catChips:cats.map(c=>{const act=s.cat===c;return{label:c,count:c==='Todas'?vis.length:vis.filter(a=>a.cat===c).length,go:()=>this.setState({cat:c}),style:{display:'inline-flex',alignItems:'center',gap:8,padding:'7px 14px',borderRadius:2,border:`1px solid ${act?'var(--color-accent)':'var(--color-divider)'}`,background:act?'var(--color-accent)':'transparent',color:act?'var(--color-bg)':'var(--color-text)',font:'400 14px var(--font-body)',cursor:'pointer'}};}),
+                  toolList:tools.map(a=>({...mk(a,52,dark),isRecent:s.recent.slice(0,3).includes(a.id),homeLabel:'En tu Inicio'})),noTools:!tools.length,
+                  faqs:FAQ.map(([q2,a],i)=>({q:q2,a,open:s.faq===i,icon:s.faq===i?'ph-minus':'ph-plus',toggle:()=>this.setState({faq:s.faq===i?-1:i})})),
+                  sent:s.sent,notSent:!s.sent,send:()=>this.setState({sent:true}),appNames:vis.map(a=>a.name),
+                  adminRows:s.apps.map((a,i)=>({...mk(a,40,dark),isFirst:i===0,isLast:i===s.apps.length-1,up:()=>this.move(i,-1),down:()=>this.move(i,1),
+                    toggle:()=>this.setState(st=>({apps:st.apps.map(x=>x.id===a.id?{...x,visible:!x.visible}:x)})),
+                    remove:()=>this.setState(st=>({apps:st.apps.filter(x=>x.id!==a.id),recent:st.recent.filter(r=>r!==a.id)})),
+                    trackStyle:{width:40,height:22,borderRadius:11,border:0,padding:2,cursor:'pointer',background:a.visible?'var(--color-accent)':'var(--color-divider)',display:'flex',justifyContent:a.visible?'flex-end':'flex-start',transition:'background .2s'},
+                    knobStyle:{width:18,height:18,borderRadius:9,background:'#fff',boxShadow:'0 1px 2px rgba(0,0,0,.3)',display:'block'}})),
+                  draft:d,draftName:d.name.trim()||'Tu nueva app',draftTile:tile({hue:d.hue},56,dark),catOptions:CATS,
+                  setName:e=>this.setDraft('name',e.target.value),setDesc:e=>this.setDraft('desc',e.target.value),setCat:e=>this.setDraft('cat',e.target.value),
+                  iconOptions:ICONS.map(ic=>({icon:ic,pick:()=>this.setDraft('icon',ic),style:{aspectRatio:'1/1',display:'grid',placeItems:'center',fontSize:20,borderRadius:2,cursor:'pointer',border:0,background:d.icon===ic?'var(--color-accent)':'transparent',color:d.icon===ic?'var(--color-bg)':'var(--color-text)'}})),
+                  hueOptions:HUES.map(hu=>({pick:()=>this.setDraft('hue',hu),style:{width:26,height:26,borderRadius:2,border:0,padding:0,cursor:'pointer',background:`oklch(0.7 0.13 ${hu})`,boxShadow:d.hue===hu?'0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-text)':'none'}})),
+                  cantPublish:!d.name.trim(),
+                  publish:()=>{const nm=d.name.trim();if(!nm)return;const id=norm(nm).replace(/[^a-z0-9]/g,'')+Date.now();
+                    this.setState(st=>({apps:[...st.apps,{id,name:nm,cat:d.cat,icon:d.icon,hue:d.hue,desc:d.desc.trim()||'Recién salida del horno.',visible:true}],draft:{name:'',desc:'',cat:d.cat,icon:'ph-lightning',hue:140},flash:`¡Listo! «${nm}» ya está en el Inicio.`}));
+                    clearTimeout(this.ft);this.ft=setTimeout(()=>this.setState({flash:''}),3500);},
+                  flash:s.flash,
+                  hasOpen:!!s.openId,openApp:(()=>{const a=s.apps.find(x=>x.id===s.openId);return a?mk(a,64,dark):{};})(),
+                  closeApp:()=>this.setState({openId:null}),stop:e=>e.stopPropagation()
+                };
+              }
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,401 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans:
+        var(--font-source-serif-4), 'Source Serif 4', ui-serif, Georgia, serif;
+    --font-serif:
+        var(--font-source-serif-4), 'Source Serif 4', ui-serif, Georgia, serif;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 3px);
+
+    /* Tokens de marca bambudev (sistema "Broadsheet"): bg-bd-surface, text-bd-muted… */
+    --color-bd-bg: var(--bd-bg);
+    --color-bd-surface: var(--bd-surface);
+    --color-bd-text: var(--bd-text);
+    --color-bd-muted: var(--bd-muted);
+    --color-bd-divider: var(--bd-divider);
+    --color-bd-hover: var(--bd-hover);
+    --color-bd-accent: var(--bd-accent);
+    --color-bd-accent-100: var(--bd-accent-100);
+    --color-bd-accent-600: var(--bd-accent-600);
+    --color-bd-accent-700: var(--bd-accent-700);
+    --color-bd-accent-800: var(--bd-accent-800);
+    --color-bd-accent-2: var(--bd-accent-2);
+    --color-bd-accent-2-700: var(--bd-accent-2-700);
+    --color-wall-muted: var(--wall-muted);
+
+    --shadow-bd-sm: var(--bd-shadow-sm);
+    --shadow-bd-md: var(--bd-shadow-md);
+    --shadow-bd-lg: var(--bd-shadow-lg);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+:root {
+    /* — bambudev, tema claro — */
+    --bd-bg: #f3f2f2;
+    --bd-surface: #eae9e9;
+    --bd-text: #201e1d;
+    --bd-muted: #5f5b5a;
+    --bd-divider: rgba(32, 30, 29, 0.16);
+    --bd-hover: rgba(32, 30, 29, 0.06);
+    --bd-accent: #3b8a2e;
+    --bd-accent-100: #e6f4e0;
+    --bd-accent-600: #2f7526;
+    --bd-accent-700: #245d1d;
+    --bd-accent-800: #1a4416;
+    --bd-accent-2: #d6006c;
+    --bd-accent-2-100: #fff1f4;
+    --bd-accent-2-700: #aa0b56;
+    --bd-accent-2-800: #790e3d;
+    --bd-neutral-100: #f8f4f4;
+    --bd-neutral-800: #444141;
+    --bd-shadow-sm: 0 1px 2px color-mix(in srgb, #2d2b2b 14%, transparent);
+    --bd-shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+    --bd-shadow-lg: 0 12px 32px color-mix(in srgb, #2d2b2b 22%, transparent);
+
+    /* — variables de shadcn (auth, configuración) apuntando a la paleta — */
+    --background: var(--bd-bg);
+    --foreground: var(--bd-text);
+    --card: var(--bd-surface);
+    --card-foreground: var(--bd-text);
+    --popover: var(--bd-bg);
+    --popover-foreground: var(--bd-text);
+    --primary: var(--bd-accent);
+    --primary-foreground: var(--bd-bg);
+    --secondary: var(--bd-surface);
+    --secondary-foreground: var(--bd-text);
+    --muted: var(--bd-surface);
+    --muted-foreground: var(--bd-muted);
+    --accent: var(--bd-hover);
+    --accent-foreground: var(--bd-text);
+    --destructive: var(--bd-accent-2);
+    --destructive-foreground: #fff;
+    --border: var(--bd-divider);
+    --input: var(--bd-divider);
+    --ring: var(--bd-accent);
+    --chart-1: hsl(12 76% 61%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+    --radius: 4px;
+    --sidebar-background: var(--bd-bg);
+    --sidebar-foreground: var(--bd-text);
+    --sidebar-primary: var(--bd-accent);
+    --sidebar-primary-foreground: var(--bd-bg);
+    --sidebar-accent: var(--bd-hover);
+    --sidebar-accent-foreground: var(--bd-text);
+    --sidebar-border: var(--bd-divider);
+    --sidebar-ring: var(--bd-accent);
+    --sidebar: var(--bd-bg);
+}
+
+.dark {
+    --bd-bg: #161716;
+    --bd-surface: #222423;
+    --bd-text: #ecebea;
+    --bd-muted: #a6a3a1;
+    --bd-divider: rgba(236, 235, 234, 0.16);
+    --bd-hover: rgba(236, 235, 234, 0.07);
+    --bd-accent: #6cbf55;
+    --bd-accent-100: #1d2d19;
+    --bd-accent-600: #84cf6d;
+    --bd-accent-700: #a5e08f;
+    --bd-accent-800: #c4edb4;
+    --bd-accent-2-100: #3a1424;
+    --bd-accent-2-700: #ff90b1;
+    --bd-accent-2-800: #ffc0d0;
+    --bd-neutral-100: #2a2c2b;
+    --bd-neutral-800: #d7d3d3;
+    --bd-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --bd-shadow-md: 0 3px 12px rgba(0, 0, 0, 0.45);
+    --bd-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-size: 15px;
+        line-height: 1.55;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -0.015em;
+    }
+    ::selection {
+        background: color-mix(in srgb, var(--bd-accent) 30%, transparent);
+    }
+}
+
+/* — Clases del sistema Broadsheet (docs/design/styles.css) — */
+@layer components {
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 1.2;
+        color: var(--bd-text);
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 10px 18px;
+        border-radius: 2px;
+        white-space: nowrap;
+    }
+    .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+    .btn-primary {
+        background: var(--bd-accent);
+        color: var(--bd-bg);
+    }
+    .btn-primary:not(:disabled):hover {
+        background: var(--bd-accent-600);
+    }
+    .btn-primary:not(:disabled):active {
+        background: var(--bd-accent-700);
+    }
+    .btn-secondary {
+        border-color: var(--bd-divider);
+    }
+    .btn-secondary:hover {
+        background: color-mix(in srgb, var(--bd-text) 7%, transparent);
+    }
+    .btn-secondary:active {
+        background: color-mix(in srgb, var(--bd-text) 14%, transparent);
+    }
+    .btn-ghost {
+        color: var(--bd-accent);
+        padding-inline: 5px;
+    }
+    .btn-ghost:not(:disabled):hover {
+        background: color-mix(in srgb, var(--bd-accent) 10%, transparent);
+    }
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+    }
+    .btn-block {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .field > label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 5px;
+        color: color-mix(in srgb, var(--bd-text) 70%, transparent);
+    }
+    .input {
+        width: 100%;
+        min-height: 36px;
+        padding: 6px 10px;
+        font: inherit;
+        font-size: 14px;
+        color: var(--bd-text);
+        caret-color: var(--bd-accent);
+        background: var(--bd-surface);
+        border: 1px solid var(--bd-divider);
+        border-radius: 2px;
+    }
+    .input::placeholder {
+        color: color-mix(in srgb, var(--bd-text) 65%, transparent);
+        opacity: 1;
+    }
+    .input:hover {
+        border-color: color-mix(in srgb, var(--bd-text) 45%, transparent);
+    }
+    .input:focus-visible {
+        border-color: var(--bd-accent);
+        outline: 2px solid var(--bd-accent);
+        outline-offset: 0;
+    }
+    textarea.input {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        padding: 3px 10px;
+        border-radius: 1.5px;
+        white-space: nowrap;
+    }
+    .tag-accent {
+        background: var(--bd-accent-100);
+        color: var(--bd-accent-800);
+    }
+    .tag-accent-2 {
+        background: var(--bd-accent-2-100);
+        color: var(--bd-accent-2-800);
+    }
+    .tag-neutral {
+        background: var(--bd-neutral-100);
+        color: var(--bd-neutral-800);
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    .table th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--bd-text) 60%, transparent);
+        padding: 10px;
+        border-bottom: 1px solid var(--bd-divider);
+    }
+    .table td {
+        padding: 10px;
+        border-bottom: 1px solid
+            color-mix(in srgb, var(--bd-text) 8%, transparent);
+    }
+    .table tbody tr:hover {
+        background: color-mix(in srgb, var(--bd-text) 4%, transparent);
+    }
+
+    .kicker {
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--bd-accent-700);
+    }
+
+    .bd-link {
+        color: var(--bd-accent);
+        text-underline-offset: 3px;
+        text-decoration: underline;
+    }
+    .bd-link:hover {
+        color: var(--bd-accent-600);
+    }
+
+    /* — Fondos del Inicio — */
+    .wall {
+        color: var(--bd-text);
+        --wall-muted: var(--bd-muted);
+    }
+    .wall-papel {
+        background: var(--bd-bg);
+    }
+    .wall-bambu {
+        background:
+            repeating-linear-gradient(
+                90deg,
+                transparent 0 58px,
+                color-mix(in srgb, var(--bd-accent) 10%, transparent) 58px 66px,
+                transparent 66px 72px
+            ),
+            var(--bd-bg);
+    }
+    .wall-trama {
+        background:
+            radial-gradient(
+                    circle,
+                    color-mix(in srgb, var(--bd-text) 16%, transparent) 1px,
+                    transparent 1.7px
+                )
+                0 0 / 9px 9px,
+            var(--bd-bg);
+    }
+    .wall-bosque {
+        background:
+            repeating-linear-gradient(
+                90deg,
+                transparent 0 58px,
+                rgba(140, 200, 120, 0.07) 58px 66px,
+                transparent 66px 72px
+            ),
+            #10291c;
+        color: #eef2ec;
+        --wall-muted: #a9c0b0;
+    }
+}
