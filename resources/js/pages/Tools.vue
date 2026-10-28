@@ -14,7 +14,7 @@ const props = defineProps<{ apps: MicroApp[]; initialQuery: string }>();
 const ALL = 'Todas';
 
 const { resolvedAppearance } = useAppearance();
-const { recents, showApp, genericIcons, setGenericIcons, isOnHome, setOnHome } =
+const { recents, openApp, genericIcons, setGenericIcons, isOnHome, setOnHome } =
     usePortal();
 
 const query = ref(props.initialQuery);
@@ -152,7 +152,7 @@ const isRecent = (app: MicroApp) => recents.value.slice(0, 3).includes(app.id);
                     <button
                         type="button"
                         class="btn btn-primary"
-                        @click="showApp(app)"
+                        @click="openApp(app)"
                     >
                         Abrir<i class="ph-duotone ph-arrow-up-right" />
                     </button>

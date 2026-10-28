@@ -80,6 +80,47 @@ class PortalTest extends TestCase
             ->assertRedirect(route('home'));
     }
 
+    public function test_opening_in_a_new_tab_only_records_the_recent_and_stays_put()
+    {
+        $user = User::factory()->create();
+        $app = MicroApp::factory()->create(['target' => 'https://agendaflex.example']);
+
+        // La pestaña nueva la abre el navegador; acá solo se anota, sin redirigir a la app.
+        $this->actingAs($user)
+            ->from(route('tools'))
+            ->post(route('apps.remember', $app))
+            ->assertRedirect(route('tools'));
+
+        $this->get(route('home'))->assertInertia(fn (Assert $page) => $page->where('recents', [$app->slug]));
+
+        $hidden = MicroApp::factory()->hidden()->create();
+        $this->post(route('apps.remember', $hidden))->assertNotFound();
+    }
+
+    public function test_guests_keep_their_recents_in_the_browser_when_opening_in_a_new_tab()
+    {
+        $app = MicroApp::factory()->create();
+
+        $this->post(route('apps.remember', $app))->assertRedirect(route('login'));
+    }
+
+    public function test_users_can_choose_how_apps_open()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Sin elegir: null, y el frontend usa la pestaña nueva.
+        $this->get(route('home'))->assertInertia(fn (Assert $page) => $page->where('appOpen', null));
+
+        $this->patch(route('preferences.update'), ['app_open' => 'ask'])->assertSessionHasNoErrors();
+        $this->get(route('home'))->assertInertia(fn (Assert $page) => $page->where('appOpen', 'ask'));
+
+        $this->patch(route('preferences.update'), ['app_open' => 'new_tab'])->assertSessionHasNoErrors();
+        $this->assertSame('new_tab', $user->fresh()->preferences['app_open']);
+
+        $this->patch(route('preferences.update'), ['app_open' => 'popup'])->assertSessionHasErrors('app_open');
+    }
+
     public function test_hidden_apps_cannot_be_opened()
     {
         $app = MicroApp::factory()->hidden()->create();

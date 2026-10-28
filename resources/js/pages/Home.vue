@@ -21,7 +21,7 @@ const perPage = computed(() => (isPhone.value ? 8 : 12));
 const page = usePage();
 const { time, date, salutation } = useClock();
 const { resolvedAppearance } = useAppearance();
-const { recents, wallpaper, openId, showApp, isOnHome, setOnHome } =
+const { recents, wallpaper, openId, openApp, isOnHome, setOnHome } =
     usePortal();
 
 const firstName = computed(() => page.props.auth.user?.name.split(' ')[0]);
@@ -95,7 +95,7 @@ const goPage = (delta: number) => {
 
 const onSearchKey = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && results.value[0]) {
-        showApp(results.value[0]);
+        openApp(results.value[0]);
     }
 
     if (e.key === 'Escape') {
@@ -273,7 +273,7 @@ const recentApps = computed(() =>
                                 @click="
                                     editing
                                         ? setOnHome(item, false)
-                                        : showApp(item)
+                                        : openApp(item)
                                 "
                             >
                                 <span class="relative">
@@ -357,7 +357,7 @@ const recentApps = computed(() =>
                     :key="app.id"
                     type="button"
                     class="flex items-center gap-2 rounded border border-bd-divider bg-[color-mix(in_srgb,currentColor_5%,transparent)] py-1 pr-3 pl-1 text-[13px] hover:bg-[color-mix(in_srgb,currentColor_11%,transparent)]"
-                    @click="showApp(app)"
+                    @click="openApp(app)"
                 >
                     <AppTile
                         :icon="app.icon"

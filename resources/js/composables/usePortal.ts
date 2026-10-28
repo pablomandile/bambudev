@@ -1,11 +1,11 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { open as openRoute } from '@/routes/apps';
+import { open as openRoute, remember as rememberRoute } from '@/routes/apps';
 import {
     home as updateHome,
     update as updatePreferences,
 } from '@/routes/preferences';
-import type { MicroApp, Wallpaper } from '@/types';
+import type { AppOpenMode, MicroApp, Wallpaper } from '@/types';
 
 const RECENTS_KEY = 'bambudev.recents';
 const WALLPAPER_KEY = 'bambudev.wallpaper';
@@ -39,6 +39,7 @@ const guestHomeHidden = ref<string[]>([]);
 // Cambios ya mostrados pero que el servidor todavía no confirmó.
 const pendingHome = ref<Record<string, boolean>>({});
 const pendingWallpaper = ref<Wallpaper | null>(null);
+const pendingAppOpen = ref<AppOpenMode | null>(null);
 const openId = ref<string | null>(null);
 let hydrated = false;
 
@@ -181,6 +182,58 @@ export function usePortal() {
         router.post(openRoute(app.id).url, {}, { preserveScroll: true });
     }
 
+    // — Cómo abren las apps —
+    const appOpen = computed<AppOpenMode>(
+        () =>
+            pendingAppOpen.value ??
+            (isGuest.value ? null : page.props.appOpen) ??
+            'new_tab',
+    );
+
+    function setAppOpen(value: AppOpenMode) {
+        pendingAppOpen.value = value;
+
+        router.patch(
+            updatePreferences().url,
+            { app_open: value },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['appOpen'],
+                onFinish: () => (pendingAppOpen.value = null),
+            },
+        );
+    }
+
+    /**
+     * Lo que pasa al hacer clic en una app. Por defecto se abre directo en una
+     * pestaña nueva; con "preguntar" (o si todavía no tiene destino, para
+     * mostrar el "Muy pronto") aparece la tarjeta de confirmación.
+     */
+    function openApp(app: MicroApp) {
+        if (appOpen.value === 'ask' || !app.hasTarget || !app.target) {
+            showApp(app);
+
+            return;
+        }
+
+        // En el mismo clic: si se hace después de una request, el navegador lo
+        // trata como popup y lo bloquea.
+        window.open(app.target, '_blank', 'noopener');
+
+        if (isGuest.value) {
+            rememberGuestRecent(app.id);
+
+            return;
+        }
+
+        router.post(
+            rememberRoute(app.id).url,
+            {},
+            { preserveScroll: true, preserveState: true, only: ['recents'] },
+        );
+    }
+
     return {
         isGuest,
         recents,
@@ -188,6 +241,9 @@ export function usePortal() {
         setWallpaper,
         genericIcons,
         setGenericIcons,
+        appOpen,
+        setAppOpen,
+        openApp,
         isOnHome,
         setOnHome,
         openId,

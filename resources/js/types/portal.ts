@@ -33,6 +33,9 @@ export type Category = {
     name: string;
 };
 
+// Cómo abren las apps (ver PreferenceController::APP_OPEN_MODES).
+export type AppOpenMode = 'new_tab' | 'ask';
+
 export type Wallpaper =
     | 'papel'
     | 'bambu'

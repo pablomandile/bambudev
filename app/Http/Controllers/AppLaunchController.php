@@ -31,4 +31,18 @@ class AppLaunchController extends Controller
             ? redirect()->to($url)
             : Inertia::location($url);
     }
+
+    /**
+     * Solo anota la app en los recientes. La usa el modo "pestaña nueva": la
+     * pestaña se abre en el navegador, en el mismo clic, para que no la bloquee
+     * el anti-popups, y acá queda registrado sin mover la pestaña del portal.
+     */
+    public function remember(Request $request, MicroApp $microApp): RedirectResponse
+    {
+        abort_unless($microApp->visible, 404);
+
+        $request->user()->touchRecentApp($microApp);
+
+        return back();
+    }
 }

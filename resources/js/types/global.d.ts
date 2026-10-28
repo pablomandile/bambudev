@@ -1,6 +1,6 @@
 import type { Directive } from 'vue';
 import type { Auth } from '@/types/auth';
-import type { Wallpaper } from '@/types/portal';
+import type { AppOpenMode, Wallpaper } from '@/types/portal';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -24,6 +24,7 @@ declare module '@inertiajs/core' {
             wallpaper: Wallpaper | null;
             genericIcons: boolean | null;
             homeHidden: string[] | null;
+            appOpen: AppOpenMode | null;
             googleLoginEnabled: boolean;
             [key: string]: unknown;
         };

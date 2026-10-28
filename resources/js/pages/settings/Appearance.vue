@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
+import AppOpenPicker from '@/components/AppOpenPicker.vue';
 import Heading from '@/components/Heading.vue';
 import WallpaperPicker from '@/components/WallpaperPicker.vue';
 import { edit } from '@/routes/appearance';
@@ -38,5 +39,14 @@ defineOptions({
             description="El fondo que ves detrás de tus apps en el Inicio"
         />
         <WallpaperPicker />
+    </div>
+
+    <div class="space-y-6">
+        <Heading
+            variant="small"
+            title="¿Cómo abren las apps?"
+            description="Qué pasa cuando haces clic en una app del Inicio o de Herramientas"
+        />
+        <AppOpenPicker />
     </div>
 </template>

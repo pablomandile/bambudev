@@ -11,11 +11,18 @@ class PreferenceController extends Controller
 {
     public const WALLPAPERS = ['papel', 'bambu', 'trama', 'bosque', 'esterilla', 'canizo'];
 
+    /**
+     * Cómo abren las apps: directo en una pestaña nueva (por defecto), o con la
+     * tarjeta de confirmación y en la misma pestaña, como era antes.
+     */
+    public const APP_OPEN_MODES = ['new_tab', 'ask'];
+
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'wallpaper' => ['sometimes', 'required', Rule::in(self::WALLPAPERS)],
             'generic_icons' => ['sometimes', 'required', 'boolean'],
+            'app_open' => ['sometimes', 'required', Rule::in(self::APP_OPEN_MODES)],
         ]);
 
         if (array_key_exists('generic_icons', $validated)) {

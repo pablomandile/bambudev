@@ -29,7 +29,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property bool $is_admin
- * @property array{wallpaper?: string, generic_icons?: bool, home_hidden?: list<string>}|null $preferences
+ * @property array{wallpaper?: string, generic_icons?: bool, home_hidden?: list<string>, app_open?: string}|null $preferences
  */
 #[Fillable(['name', 'email', 'password', 'preferences'])]
 #[Hidden(['password', 'google_id', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]

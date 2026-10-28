@@ -27,6 +27,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::patch('preferencias', [PreferenceController::class, 'update'])->name('preferences.update');
     Route::patch('inicio/{microApp}', [PreferenceController::class, 'home'])->name('preferences.home');
+    Route::post('apps/{microApp}/reciente', [AppLaunchController::class, 'remember'])->name('apps.remember');
 });
 
 Route::middleware(['auth', 'verified', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
