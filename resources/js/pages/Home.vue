@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { Deferred, Head, Link, usePage } from '@inertiajs/vue3';
-import { useMediaQuery } from '@vueuse/core';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import AppLaunchModal from '@/components/AppLaunchModal.vue';
-import AppTile from '@/components/AppTile.vue';
-import WeatherLine from '@/components/WeatherLine.vue';
-import { useAppearance } from '@/composables/useAppearance';
-import { useClock } from '@/composables/useClock';
-import { usePortal } from '@/composables/usePortal';
-import { WALLPAPERS, matchesQuery } from '@/lib/portal';
-import { tools } from '@/routes';
-import type { MicroApp, Weather } from '@/types';
+import { Deferred, Head, Link, usePage } from "@inertiajs/vue3";
+import { useMediaQuery } from "@vueuse/core";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import AppLaunchModal from "@/components/AppLaunchModal.vue";
+import AppTile from "@/components/AppTile.vue";
+import WeatherLine from "@/components/WeatherLine.vue";
+import { useAppearance } from "@/composables/useAppearance";
+import { useClock } from "@/composables/useClock";
+import { usePortal } from "@/composables/usePortal";
+import { WALLPAPERS, matchesQuery } from "@/lib/portal";
+import { tools } from "@/routes";
+import type { MicroApp, Weather } from "@/types";
 
 const props = defineProps<{ apps: MicroApp[]; weather?: Weather | null }>();
 
-// En el celular entran 4×2 apps por página; desde sm, 6×2 como en el diseño.
-const isPhone = useMediaQuery('(max-width: 639px)');
-const perPage = computed(() => (isPhone.value ? 8 : 12));
+// En el celular entran 4×2 apps por página; desde sm, 6×2; en el escritorio
+// (desde md), con el reloj arriba a la izquierda, 6×3.
+const isPhone = useMediaQuery("(max-width: 639px)");
+const isDesktop = useMediaQuery("(min-width: 768px)");
+const perPage = computed(() => (isPhone.value ? 8 : isDesktop.value ? 18 : 12));
 
 const page = usePage();
 const { time, date, salutation } = useClock();
@@ -24,7 +26,7 @@ const { resolvedAppearance } = useAppearance();
 const { recents, wallpaper, openId, openApp, isOnHome, setOnHome } =
     usePortal();
 
-const firstName = computed(() => page.props.auth.user?.name.split(' ')[0]);
+const firstName = computed(() => page.props.auth.user?.name.split(" ")[0]);
 const greeting = computed(() =>
     firstName.value
         ? `${salutation.value}, ${firstName.value}.`
@@ -33,23 +35,23 @@ const greeting = computed(() =>
 
 const wallDark = computed(
     () =>
-        resolvedAppearance.value === 'dark' ||
+        resolvedAppearance.value === "dark" ||
         !!WALLPAPERS.find((w) => w.id === wallpaper.value)?.dark,
 );
 
 // — Inicio personalizado —
-const ADD = 'add';
+const ADD = "add";
 const editing = ref(false);
 
 const homeApps = computed(() => props.apps.filter((a) => isOnHome(a)));
 
 const toggleEditing = () => {
     editing.value = !editing.value;
-    query.value = '';
+    query.value = "";
 };
 
 // — Búsqueda y paginación —
-const query = ref('');
+const query = ref("");
 const current = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
@@ -94,12 +96,12 @@ const goPage = (delta: number) => {
 };
 
 const onSearchKey = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' && results.value[0]) {
+    if (e.key === "Enter" && results.value[0]) {
         openApp(results.value[0]);
     }
 
-    if (e.key === 'Escape') {
-        query.value = '';
+    if (e.key === "Escape") {
+        query.value = "";
         (e.target as HTMLInputElement).blur();
     }
 };
@@ -132,20 +134,20 @@ const onKeydown = (e: KeyboardEvent) => {
         return;
     }
 
-    if (e.key === 'Escape' && editing.value) {
+    if (e.key === "Escape" && editing.value) {
         editing.value = false;
-    } else if (e.key === '/') {
+    } else if (e.key === "/") {
         e.preventDefault();
         searchInput.value?.focus();
-    } else if (e.key === 'ArrowRight') {
+    } else if (e.key === "ArrowRight") {
         goPage(1);
-    } else if (e.key === 'ArrowLeft') {
+    } else if (e.key === "ArrowLeft") {
         goPage(-1);
     }
 };
 
-onMounted(() => window.addEventListener('keydown', onKeydown));
-onUnmounted(() => window.removeEventListener('keydown', onKeydown));
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
 
 // — Barra inferior —
 const recentApps = computed(() =>
@@ -163,12 +165,32 @@ const recentApps = computed(() =>
         class="wall relative flex h-full min-h-0 flex-col overflow-hidden"
         :class="`wall-${wallpaper}`"
     >
-        <!-- Arriba a la derecha (en el celular, a todo el ancho): búsqueda y el tiempo -->
+        <!-- Arriba: en el escritorio, el reloj a la izquierda; a la derecha
+             (en el celular, a todo el ancho), la búsqueda y el tiempo -->
         <div
-            class="flex flex-none justify-end px-4 pt-[clamp(10px,2vh,20px)] sm:px-8"
+            class="flex flex-none items-start justify-end gap-6 px-4 pt-[clamp(10px,2vh,20px)] sm:px-8 md:justify-between"
         >
+            <div class="hidden min-w-0 flex-col gap-1 md:flex">
+                <div
+                    class="text-[clamp(40px,8vh,88px)] leading-[0.95] font-semibold tracking-[-0.04em] tabular-nums"
+                >
+                    {{ time }}
+                </div>
+                <div
+                    class="text-base tracking-[0.02em] whitespace-nowrap text-wall-muted"
+                >
+                    {{ date }}
+                </div>
+                <div
+                    class="mt-[clamp(0px,0.6vh,6px)] text-[clamp(17px,2.6vh,22px)] leading-[1.3] italic [@media(max-height:520px)]:hidden"
+                >
+                    {{ greeting }}
+                    <span class="text-wall-muted">¿Qué resolvemos hoy?</span>
+                </div>
+            </div>
+
             <div
-                class="flex w-full flex-col items-stretch gap-[clamp(4px,1vh,10px)] sm:w-[340px]"
+                class="flex w-full flex-none flex-col items-stretch gap-[clamp(4px,1vh,10px)] sm:w-[340px]"
             >
                 <label
                     class="flex h-11 w-full items-center gap-2.5 rounded border border-bd-divider bg-bd-surface px-4 text-bd-text shadow-bd-sm"
@@ -204,7 +226,9 @@ const recentApps = computed(() =>
         <div
             class="flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-[clamp(8px,2.2vh,30px)] px-4 pb-1 sm:px-8"
         >
-            <div class="flex w-full flex-col items-center gap-1.5 text-center">
+            <div
+                class="flex w-full flex-col items-center gap-1.5 text-center md:hidden"
+            >
                 <div
                     class="text-[clamp(40px,8.5vh,104px)] leading-[0.95] font-semibold tracking-[-0.04em] tabular-nums"
                 >
@@ -387,7 +411,7 @@ const recentApps = computed(() =>
                         class="ph-duotone"
                         :class="editing ? 'ph-check' : 'ph-pencil-simple'"
                     />
-                    {{ editing ? 'Listo' : 'Editar' }}
+                    {{ editing ? "Listo" : "Editar" }}
                 </button>
             </div>
         </div>
