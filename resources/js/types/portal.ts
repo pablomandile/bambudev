@@ -9,6 +9,8 @@ export type MicroApp = {
     tags: string;
     desc: string;
     visible: boolean;
+    // Solo la ven y la abren los admins.
+    adminOnly: boolean;
     targetType: 'internal' | 'external';
     target: string | null;
     hasTarget: boolean;

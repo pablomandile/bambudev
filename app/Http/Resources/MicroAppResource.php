@@ -29,6 +29,7 @@ class MicroAppResource extends JsonResource
             'tags' => $this->tags ?? '',
             'desc' => $this->description ?? '',
             'visible' => $this->visible,
+            'adminOnly' => $this->admin_only,
             'targetType' => $this->target_type,
             'target' => $this->target,
             'hasTarget' => filled($this->target),

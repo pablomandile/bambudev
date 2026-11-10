@@ -15,7 +15,7 @@ class AppLaunchController extends Controller
      */
     public function __invoke(Request $request, MicroApp $microApp): Response|RedirectResponse
     {
-        abort_unless($microApp->visible, 404);
+        abort_unless($microApp->isAvailableTo($request->user()), 404);
 
         $request->user()?->touchRecentApp($microApp);
 
@@ -39,7 +39,7 @@ class AppLaunchController extends Controller
      */
     public function remember(Request $request, MicroApp $microApp): RedirectResponse
     {
-        abort_unless($microApp->visible, 404);
+        abort_unless($microApp->isAvailableTo($request->user()), 404);
 
         $request->user()->touchRecentApp($microApp);
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\MicroAppFactory;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,12 +27,13 @@ use Illuminate\Support\Str;
  * @property string|null $logo_path
  * @property string|null $tags
  * @property bool $visible
+ * @property bool $admin_only
  * @property int $sort_order
  * @property string $target_type
  * @property string|null $target
  * @property-read Category $category
  */
-#[Fillable(['slug', 'name', 'description', 'category_id', 'icon', 'hue', 'tags', 'visible', 'sort_order', 'target_type', 'target'])]
+#[Fillable(['slug', 'name', 'description', 'category_id', 'icon', 'hue', 'tags', 'visible', 'admin_only', 'sort_order', 'target_type', 'target'])]
 class MicroApp extends Model
 {
     /** @use HasFactory<MicroAppFactory> */
@@ -85,6 +87,7 @@ class MicroApp extends Model
         return [
             'hue' => 'integer',
             'visible' => 'boolean',
+            'admin_only' => 'boolean',
             'sort_order' => 'integer',
         ];
     }
@@ -111,6 +114,42 @@ class MicroApp extends Model
     public function scopeVisible(Builder $query): void
     {
         $query->where('visible', true);
+    }
+
+    /**
+     * Las apps que puede ver y abrir esta persona: las visibles, y las
+     * «solo admins» únicamente si es admin.
+     *
+     * @param  Builder<MicroApp>  $query
+     */
+    public function scopeAvailableTo(Builder $query, ?Authenticatable $user): void
+    {
+        $query->where('visible', true);
+
+        if (! static::isAdmin($user)) {
+            $query->where('admin_only', false);
+        }
+    }
+
+    /**
+     * Las apps que ve cualquiera (visibles y no «solo admins»).
+     *
+     * @param  Builder<MicroApp>  $query
+     */
+    public function scopePublic(Builder $query): void
+    {
+        $query->where('visible', true)->where('admin_only', false);
+    }
+
+    public function isAvailableTo(?Authenticatable $user): bool
+    {
+        // getAttribute: $this->visible es la lista de serialización de Eloquent, no la columna.
+        return $this->getAttribute('visible') && (! $this->admin_only || static::isAdmin($user));
+    }
+
+    private static function isAdmin(?Authenticatable $user): bool
+    {
+        return $user !== null && $user->can('admin');
     }
 
     /**

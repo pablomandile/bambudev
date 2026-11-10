@@ -14,7 +14,7 @@ class ToolsController extends Controller
     {
         return Inertia::render('Tools', [
             'apps' => MicroAppResource::collection(
-                MicroApp::visible()->ordered()->with('category')->get(),
+                MicroApp::availableTo($request->user())->ordered()->with('category')->get(),
             )->resolve(),
             'initialQuery' => (string) $request->string('q')->limit(100, ''),
         ]);

@@ -14,7 +14,7 @@ class ContactController extends Controller
     public function show(): Response
     {
         return Inertia::render('Help', [
-            'appOptions' => MicroApp::visible()->ordered()->get(['slug', 'name'])
+            'appOptions' => MicroApp::public()->ordered()->get(['slug', 'name'])
                 ->map(fn (MicroApp $app) => ['id' => $app->slug, 'name' => $app->name]),
         ]);
     }

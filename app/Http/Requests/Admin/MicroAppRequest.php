@@ -41,6 +41,7 @@ class MicroAppRequest extends FormRequest
             // Sin SVG: puede traer scripts y se serviría desde este mismo dominio.
             'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024', 'dimensions:min_width=64,min_height=64'],
             'remove_logo' => ['boolean'],
+            'admin_only' => ['boolean'],
             'target_type' => ['required', Rule::in([MicroApp::TARGET_INTERNAL, MicroApp::TARGET_EXTERNAL])],
             'target' => [
                 'nullable',
@@ -78,6 +79,7 @@ class MicroAppRequest extends FormRequest
             'logo' => 'logo',
             'target_type' => 'tipo de destino',
             'target' => 'destino',
+            'admin_only' => 'quién la ve',
         ];
     }
 }

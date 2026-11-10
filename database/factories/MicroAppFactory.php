@@ -40,6 +40,11 @@ class MicroAppFactory extends Factory
         return $this->state(fn () => ['visible' => false]);
     }
 
+    public function adminOnly(): static
+    {
+        return $this->state(fn () => ['admin_only' => true]);
+    }
+
     public function internal(string $path): static
     {
         return $this->state(fn () => [

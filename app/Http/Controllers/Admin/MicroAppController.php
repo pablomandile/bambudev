@@ -32,7 +32,10 @@ class MicroAppController extends Controller
             $app->replaceLogo($request->file('logo'));
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => "¡Listo! «{$app->name}» ya está en el Inicio."]);
+        $message = $app->admin_only
+            ? "¡Listo! «{$app->name}» ya está en tu Inicio. Solo la ven los admins."
+            : "¡Listo! «{$app->name}» ya está en el Inicio.";
+        Inertia::flash('toast', ['type' => 'success', 'message' => $message]);
 
         return back();
     }

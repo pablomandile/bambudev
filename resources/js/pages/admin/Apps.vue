@@ -63,6 +63,7 @@ const form = useForm({
     target: '',
     logo: null as File | null,
     remove_logo: false,
+    admin_only: false,
 });
 
 // — Logo propio —
@@ -131,6 +132,7 @@ function editApp(app: MicroApp) {
     form.tags = app.tags;
     form.target_type = app.targetType;
     form.target = app.target ?? '';
+    form.admin_only = app.adminOnly;
     form.remove_logo = false;
     setPickedLogo(null);
     currentLogo.value = app.logo;
@@ -250,6 +252,11 @@ const submit = () => {
                                             class="ph-duotone ph-link-break align-middle text-bd-muted"
                                             title="Sin destino: todavía no se puede abrir"
                                         />
+                                        <i
+                                            v-if="app.adminOnly"
+                                            class="ph-duotone ph-lock-simple align-middle text-bd-muted"
+                                            title="Solo admins: los demás usuarios no la ven"
+                                        />
                                     </div>
                                     <div
                                         class="max-w-[340px] truncate text-xs text-bd-muted"
@@ -340,6 +347,11 @@ const submit = () => {
                                     v-if="!app.hasTarget"
                                     class="ph-duotone ph-link-break align-middle text-bd-muted"
                                     title="Sin destino: todavía no se puede abrir"
+                                />
+                                <i
+                                    v-if="app.adminOnly"
+                                    class="ph-duotone ph-lock-simple align-middle text-bd-muted"
+                                    title="Solo admins: los demás usuarios no la ven"
                                 />
                             </div>
                             <span class="tag tag-neutral mt-1">{{
@@ -554,6 +566,41 @@ const submit = () => {
                     <p class="mt-1 mb-0 text-xs text-bd-muted">
                         PNG, JPG o WebP cuadrado, de hasta 1 MB. Se ve cuando
                         alguien apaga los iconos genéricos en Herramientas.
+                    </p>
+                </div>
+
+                <div class="field">
+                    <label>Quién la ve</label>
+                    <div
+                        class="inline-flex overflow-hidden rounded-[2px] border border-bd-divider text-[13px]"
+                    >
+                        <button
+                            v-for="opt in [
+                                { id: false, label: 'Todos' },
+                                { id: true, label: 'Solo admins' },
+                            ] as const"
+                            :key="String(opt.id)"
+                            type="button"
+                            class="px-3 py-[7px] not-first:border-l not-first:border-bd-divider"
+                            :class="
+                                form.admin_only === opt.id
+                                    ? 'bg-bd-accent text-bd-bg'
+                                    : 'hover:bg-bd-hover'
+                            "
+                            :aria-pressed="form.admin_only === opt.id"
+                            @click="form.admin_only = opt.id"
+                        >
+                            <i
+                                v-if="opt.id"
+                                class="ph-duotone ph-lock-simple align-middle"
+                            />
+                            {{ opt.label }}
+                        </button>
+                    </div>
+                    <InputError :message="form.errors.admin_only" />
+                    <p class="mt-1 mb-0 text-xs text-bd-muted">
+                        «Solo admins» la deja en tu Inicio y en Herramientas,
+                        pero los demás usuarios no la ven ni la pueden abrir.
                     </p>
                 </div>
 
