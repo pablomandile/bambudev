@@ -2,6 +2,7 @@
 
 namespace App\Services\Dollar;
 
+use App\Models\DollarRate;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
@@ -27,12 +28,17 @@ use Throwable;
  * Como el tiempo (ver CabaWeather), se consulta desde el servidor y se comparte
  * entre todos: una tanda de requests cada `fresh` segundos. Nunca lanza excepciones.
  *
- * @phpstan-type Rate array{id: string, name: string, buy: float|null, sell: float|null, source: string, updatedAt: string}
+ * Cada lectura nueva queda además en la tabla `dollar_rates`, una fila por tipo y
+ * por día (la fecha de la fuente, no la de la lectura): la última lectura del día
+ * pisa a las anteriores, así cada día termina con su último valor.
+ *
+ * @phpstan-type Rate array{id: string, name: string, buy: float|null, sell: float|null, source: string, updatedAt: string, date: string, capturedAt: string}
  * @phpstan-type Rates array{rates: list<Rate>, updatedAt: string}
  */
 class DollarRates
 {
-    public const CACHE_KEY = 'dollar:rates';
+    /** v2: desde que cada fila trae `date` y `capturedAt`; el caché viejo no los tiene. */
+    public const CACHE_KEY = 'dollar:rates:v2';
 
     /** Tras fallar todas las fuentes no se vuelve a preguntar por un rato (ver CabaWeather). */
     public const BACKOFF_KEY = 'dollar:rates:backoff';
@@ -63,6 +69,23 @@ class DollarRates
             // Si el refresco falla, se vuelve a guardar el dato anterior en vez de pisarlo con null.
             fn () => $this->fetch() ?? Cache::get(self::CACHE_KEY),
         );
+    }
+
+    /**
+     * Una lectura forzada, para la tarea programada: no mira el caché ni el
+     * backoff, registra lo que traiga y deja el caché al día para el Inicio.
+     *
+     * @return Rates|null
+     */
+    public function refresh(): ?array
+    {
+        $rates = $this->fetch();
+
+        if ($rates !== null) {
+            Cache::put(self::CACHE_KEY, $rates, Config::integer('bambudev.dollar.stale'));
+        }
+
+        return $rates;
     }
 
     /**
@@ -141,10 +164,44 @@ class DollarRates
             return null;
         }
 
+        // Solo lo leído recién: lo que salió del caché ya quedó registrado en su momento.
+        $this->record(array_values(array_filter($rows)));
+
         return [
             'rates' => $rates,
             'updatedAt' => $this->now()->format('H:i'),
         ];
+    }
+
+    /**
+     * Guarda las filas en el registro diario. Si la base falla se loguea y sigue:
+     * el Inicio no se queda sin el dólar por eso.
+     *
+     * @param  list<Rate>  $rows
+     */
+    private function record(array $rows): void
+    {
+        try {
+            $now = now();
+
+            DollarRate::upsert(
+                array_map(fn (array $row) => [
+                    'type' => $row['id'],
+                    'date' => $row['date'],
+                    'buy' => $row['buy'],
+                    'sell' => $row['sell'],
+                    'source' => $row['source'],
+                    // upsert no pasa por los mutators del modelo: mismo formato a mano.
+                    'captured_at' => Carbon::parse($row['capturedAt'])->utc()->format('Y-m-d H:i:s'),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ], $rows),
+                ['type', 'date'],
+                ['buy', 'sell', 'source', 'captured_at', 'updated_at'],
+            );
+        } catch (Throwable $e) {
+            Log::warning('No se pudo guardar el registro diario del dólar.', ['excepcion' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -289,7 +346,14 @@ class DollarRates
             }
 
             if (count($cells) >= 3 && $this->normalize($cells[0]) === 'dolar u.s.a') {
-                $at = $this->now();
+                // La fecha de la tabla ("13/11/2026"): el sábado sigue mostrando la del viernes.
+                $at = $this->now()->startOfDay();
+                $headers = $xpath->query('//div[@id="billetes"]//th[contains(@class, "fechaCot")]');
+                $header = $headers === false ? null : $headers->item(0);
+
+                if ($header instanceof DOMElement && preg_match('/(\d{1,2})\/(\d{1,2})\/(\d{4})/', $header->textContent, $d)) {
+                    $at = $at->setDate((int) $d[3], (int) $d[2], (int) $d[1]);
+                }
 
                 foreach ($xpath->query('//div[@id="billetes"]//*[contains(@class, "legal")]') ?: [] as $legal) {
                     if ($legal instanceof DOMElement && preg_match('/(\d{1,2}):(\d{2})/', $legal->textContent, $m)) {
@@ -350,6 +414,9 @@ class DollarRates
             'source' => $source,
             // De hoy y con hora: "15:02"; si no, el día: "12/11".
             'updatedAt' => $at->isSameDay($this->now()) && ! $dateOnly ? $at->format('H:i') : $at->format('d/m'),
+            // Para el registro diario y la API: el día de la fuente, en hora argentina.
+            'date' => $at->format('Y-m-d'),
+            'capturedAt' => $at->toIso8601String(),
         ];
     }
 

@@ -47,4 +47,18 @@ return [
         'stale' => 7200,
     ],
 
+    /*
+    | Las claves de la API propia (/api/v1), una por app que la usa. En el .env:
+    | API_KEYS="mibilletera:<clave>,otra:<clave>". Quedan como [clave => app]. Sin
+    | claves, la API rechaza todo.
+    */
+    'api' => [
+        'keys' => collect(explode(',', (string) env('API_KEYS', '')))
+            ->map(fn (string $pair) => array_map('trim', explode(':', $pair, 2)))
+            ->filter(fn (array $pair) => count($pair) === 2 && $pair[0] !== '' && strlen($pair[1]) >= 20)
+            ->mapWithKeys(fn (array $pair) => [$pair[1] => $pair[0]])
+            ->all(),
+        'per_minute' => 60,
+    ],
+
 ];

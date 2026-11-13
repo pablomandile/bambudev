@@ -2,112 +2,22 @@
 
 namespace Tests\Feature;
 
+use App\Models\DollarRate;
 use App\Services\Dollar\DollarRates;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Concerns\FakesDollarSources;
 use Tests\TestCase;
 
 class DollarTest extends TestCase
 {
-    use RefreshDatabase;
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function dolarApi(): array
-    {
-        $at = Carbon::now()->toISOString();
-        $casas = [
-            // Distintos a los del BNA y el BCRA, para notar cuándo entra el respaldo.
-            'oficial' => [1515, 1565],
-            'blue' => [1555, 1575],
-            'bolsa' => [1577.6, 1578.2],
-            'contadoconliqui' => [1670.6, 1671.4],
-            'mayorista' => [1534.5, 1543.5],
-            'cripto' => [1664.99, 1669.05],
-            'tarjeta' => [1969.5, 2034.5],
-        ];
-
-        return collect($casas)->map(fn ($values, $casa) => [
-            'moneda' => 'USD',
-            'casa' => $casa,
-            'nombre' => ucfirst($casa),
-            'compra' => $values[0],
-            'venta' => $values[1],
-            'fechaActualizacion' => $at,
-        ])->values()->all();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function ambito(): array
-    {
-        return [
-            'moneda' => 'USD',
-            'casa' => 'blue',
-            'compra' => 1550,
-            'venta' => 1570,
-            'fechaActualizacion' => Carbon::now()->toISOString(),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function bcra(): array
-    {
-        return [
-            'status' => 200,
-            'results' => [
-                'fecha' => Carbon::now('America/Argentina/Buenos_Aires')->format('Y-m-d'),
-                'detalle' => [
-                    ['codigoMoneda' => 'EUR', 'descripcion' => 'EURO', 'tipoPase' => 1.1028, 'tipoCotizacion' => 1702.1718],
-                    ['codigoMoneda' => 'USD', 'descripcion' => 'DOLAR E.E.U.U.', 'tipoPase' => 0, 'tipoCotizacion' => 1543.5],
-                ],
-            ],
-        ];
-    }
-
-    private function bna(): string
-    {
-        // La estructura real de la página de Personas del BNA (13/11/2026).
-        return <<<'HTML'
-            <html><body>
-            <div class="tab-pane fade in active" id="billetes">
-                <table class="table cotizacion">
-                    <thead><tr><th class="fechaCot">13/11/2026</th><th>Compra</th><th>Venta</th></tr></thead>
-                    <tbody>
-                        <tr><td class="tit">Dolar U.S.A</td><td>1.520,00</td><td>1.570,00</td></tr>
-                        <tr><td class="tit">Euro</td><td>1.670,00</td><td>1.770,00</td></tr>
-                        <tr><td class="tit">Real *</td><td>25.500,00</td><td>28.500,00</td></tr>
-                    </tbody>
-                </table>
-                <div class="legal">Hora Actualización: 15:02</div>
-                <div class="legal">(*) cotización cada 100 unidades.</div>
-            </div>
-            </body></html>
-            HTML;
-    }
-
-    /**
-     * @param  array<string, mixed>  $overrides
-     */
-    private function fakeSources(array $overrides = []): void
-    {
-        Http::fake([
-            'dolarapi.com/v1/ambito/*' => Http::response($this->ambito()),
-            'dolarapi.com/v1/dolares*' => Http::response($this->dolarApi()),
-            'api.bcra.gob.ar/*' => Http::response($this->bcra()),
-            'www.bna.com.ar/*' => Http::response($this->bna()),
-            'api.open-meteo.com/*' => Http::response([], 503),
-            ...$overrides,
-        ]);
-    }
+    use FakesDollarSources, RefreshDatabase;
 
     public function test_it_combines_the_sources_into_ordered_rows()
     {
@@ -287,5 +197,128 @@ class DollarTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->loadDeferredProps(fn (Assert $reload) => $reload->where('dollar', null))
             );
+    }
+
+    // — Registro diario —
+
+    public function test_each_reading_is_recorded_once_per_type_and_day()
+    {
+        $this->fakeSources();
+        $today = now('America/Argentina/Buenos_Aires')->format('Y-m-d');
+
+        app(DollarRates::class)->refresh();
+        app(DollarRates::class)->refresh();
+
+        // Dos lecturas el mismo día: se actualiza la fila, no se duplica.
+        $this->assertDatabaseCount('dollar_rates', 8);
+        $oficial = DollarRate::forType('oficial')->sole();
+        $this->assertSame($today, $oficial->date->format('Y-m-d'));
+        $this->assertSame([1520.0, 1570.0, 'Banco Nación'], [$oficial->buy, $oficial->sell, $oficial->source]);
+        $this->assertSame(2041.0, DollarRate::forType('tarjeta')->sole()->sell);
+    }
+
+    public function test_a_reading_updates_a_row_saved_through_the_model()
+    {
+        // El modelo y el upsert del servicio tienen que escribir la fecha igual,
+        // o el mismo día queda dos veces.
+        DollarRate::factory()->create(['type' => 'blue', 'date' => now('America/Argentina/Buenos_Aires'), 'sell' => 1]);
+        $this->fakeSources();
+
+        app(DollarRates::class)->refresh();
+
+        $this->assertSame(1575.0, DollarRate::forType('blue')->sole()->sell);
+    }
+
+    public function test_the_last_reading_of_the_day_wins()
+    {
+        Http::fake([
+            'dolarapi.com/v1/ambito/*' => Http::response($this->ambito()),
+            'dolarapi.com/v1/dolares*' => Http::sequence()
+                ->push($this->dolarApi())
+                ->push(collect($this->dolarApi())->map(fn ($d) => $d['casa'] === 'blue' ? [...$d, 'venta' => 1600] : $d)->all()),
+            'api.bcra.gob.ar/*' => Http::response($this->bcra()),
+            'www.bna.com.ar/*' => Http::response($this->bna()),
+        ]);
+
+        app(DollarRates::class)->refresh();
+        app(DollarRates::class)->refresh();
+
+        $this->assertSame(1600.0, DollarRate::forType('blue')->sole()->sell);
+    }
+
+    public function test_rows_are_dated_by_their_source_not_by_the_reading()
+    {
+        // Sábado al mediodía: el BNA y el BCRA siguen mostrando el viernes.
+        $this->travelTo(Carbon::parse('2026-11-14 12:00', 'America/Argentina/Buenos_Aires'));
+        $this->fakeSources([
+            'api.bcra.gob.ar/*' => Http::response($this->bcra('2026-11-13')),
+            'www.bna.com.ar/*' => Http::response($this->bna('13/11/2026')),
+        ]);
+
+        app(DollarRates::class)->refresh();
+
+        $dates = DollarRate::all()->mapWithKeys(fn (DollarRate $r) => [$r->type => $r->date->format('Y-m-d')]);
+        $this->assertSame('2026-11-13', $dates['oficial']);
+        $this->assertSame('2026-11-13', $dates['tarjeta']);
+        $this->assertSame('2026-11-13', $dates['mayorista']);
+        $this->assertSame('2026-11-14', $dates['blue']);
+    }
+
+    public function test_rows_reused_from_the_cache_are_not_recorded_again()
+    {
+        // Ámbito responde la primera vez y después se cae.
+        $this->fakeSources([
+            'dolarapi.com/v1/ambito/*' => Http::sequence()->push($this->ambito())->whenEmpty(Http::response([], 500)),
+        ]);
+        app(DollarRates::class)->refresh();
+        DollarRate::query()->delete();
+
+        // Su fila sale del caché, pero no se vuelve a escribir.
+        $rates = app(DollarRates::class)->refresh();
+
+        $this->assertContains('blue_ambito', array_column($rates['rates'], 'id'));
+        $this->assertDatabaseCount('dollar_rates', 7);
+        $this->assertDatabaseMissing('dollar_rates', ['type' => 'blue_ambito']);
+    }
+
+    public function test_a_database_failure_does_not_take_the_dollar_off_the_home()
+    {
+        Log::spy();
+        $this->fakeSources();
+        Schema::drop('dollar_rates');
+
+        $this->assertCount(8, app(DollarRates::class)->current()['rates']);
+        Log::shouldHaveReceived('warning')->with('No se pudo guardar el registro diario del dólar.', \Mockery::any())->once();
+    }
+
+    public function test_the_record_command_reads_even_while_backing_off()
+    {
+        $this->fakeSources();
+        Cache::put(DollarRates::BACKOFF_KEY, true, DollarRates::BACKOFF_SECONDS);
+
+        $this->artisan('dollar:record')
+            ->expectsOutputToContain('8 cotizaciones al día')
+            ->assertSuccessful();
+
+        $this->assertDatabaseCount('dollar_rates', 8);
+        // Y deja el caché al día para el Inicio.
+        $this->assertCount(8, Cache::get(DollarRates::CACHE_KEY)['rates']);
+    }
+
+    public function test_the_record_command_fails_when_every_source_is_down()
+    {
+        $this->fakeAllSourcesDown();
+
+        $this->artisan('dollar:record')->assertFailed();
+        $this->assertDatabaseCount('dollar_rates', 0);
+    }
+
+    public function test_the_record_command_runs_every_hour()
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($event) => str_contains((string) $event->command, 'dollar:record'));
+
+        $this->assertNotNull($event);
+        $this->assertSame('0 * * * *', $event->expression);
     }
 }

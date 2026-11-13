@@ -38,6 +38,9 @@ export type DollarRate = {
     sell: number | null;
     source: string;
     updatedAt: string;
+    // El día de la fuente (AAAA-MM-DD) y cuándo lo publicó (ISO), para el registro diario.
+    date: string;
+    capturedAt: string;
 };
 
 export type Dollar = {
