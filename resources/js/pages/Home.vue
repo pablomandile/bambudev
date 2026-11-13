@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { Deferred, Head, Link, usePage } from "@inertiajs/vue3";
-import { useMediaQuery } from "@vueuse/core";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
-import AppLaunchModal from "@/components/AppLaunchModal.vue";
-import AppTile from "@/components/AppTile.vue";
-import WeatherLine from "@/components/WeatherLine.vue";
-import { useAppearance } from "@/composables/useAppearance";
-import { useClock } from "@/composables/useClock";
-import { usePortal } from "@/composables/usePortal";
-import { WALLPAPERS, matchesQuery } from "@/lib/portal";
-import { tools } from "@/routes";
-import type { MicroApp, Weather } from "@/types";
+import { Deferred, Head, Link, usePage } from '@inertiajs/vue3';
+import { useMediaQuery } from '@vueuse/core';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import AppLaunchModal from '@/components/AppLaunchModal.vue';
+import AppTile from '@/components/AppTile.vue';
+import DollarBox from '@/components/DollarBox.vue';
+import WeatherLine from '@/components/WeatherLine.vue';
+import { useAppearance } from '@/composables/useAppearance';
+import { useClock } from '@/composables/useClock';
+import { usePortal } from '@/composables/usePortal';
+import { WALLPAPERS, matchesQuery } from '@/lib/portal';
+import { tools } from '@/routes';
+import type { Dollar, MicroApp, Weather } from '@/types';
 
-const props = defineProps<{ apps: MicroApp[]; weather?: Weather | null }>();
+const props = defineProps<{
+    apps: MicroApp[];
+    weather?: Weather | null;
+    dollar?: Dollar | null;
+}>();
 
 // En el celular entran 4×2 apps por página; desde sm, 6×2; en el escritorio
 // (desde md), con el reloj arriba a la izquierda, 6×3.
-const isPhone = useMediaQuery("(max-width: 639px)");
-const isDesktop = useMediaQuery("(min-width: 768px)");
+const isPhone = useMediaQuery('(max-width: 639px)');
+const isDesktop = useMediaQuery('(min-width: 768px)');
 const perPage = computed(() => (isPhone.value ? 8 : isDesktop.value ? 18 : 12));
 
 const page = usePage();
@@ -26,7 +31,7 @@ const { resolvedAppearance } = useAppearance();
 const { recents, wallpaper, openId, openApp, isOnHome, setOnHome } =
     usePortal();
 
-const firstName = computed(() => page.props.auth.user?.name.split(" ")[0]);
+const firstName = computed(() => page.props.auth.user?.name.split(' ')[0]);
 const greeting = computed(() =>
     firstName.value
         ? `${salutation.value}, ${firstName.value}.`
@@ -35,23 +40,23 @@ const greeting = computed(() =>
 
 const wallDark = computed(
     () =>
-        resolvedAppearance.value === "dark" ||
+        resolvedAppearance.value === 'dark' ||
         !!WALLPAPERS.find((w) => w.id === wallpaper.value)?.dark,
 );
 
 // — Inicio personalizado —
-const ADD = "add";
+const ADD = 'add';
 const editing = ref(false);
 
 const homeApps = computed(() => props.apps.filter((a) => isOnHome(a)));
 
 const toggleEditing = () => {
     editing.value = !editing.value;
-    query.value = "";
+    query.value = '';
 };
 
 // — Búsqueda y paginación —
-const query = ref("");
+const query = ref('');
 const current = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
@@ -96,12 +101,12 @@ const goPage = (delta: number) => {
 };
 
 const onSearchKey = (e: KeyboardEvent) => {
-    if (e.key === "Enter" && results.value[0]) {
+    if (e.key === 'Enter' && results.value[0]) {
         openApp(results.value[0]);
     }
 
-    if (e.key === "Escape") {
-        query.value = "";
+    if (e.key === 'Escape') {
+        query.value = '';
         (e.target as HTMLInputElement).blur();
     }
 };
@@ -134,20 +139,20 @@ const onKeydown = (e: KeyboardEvent) => {
         return;
     }
 
-    if (e.key === "Escape" && editing.value) {
+    if (e.key === 'Escape' && editing.value) {
         editing.value = false;
-    } else if (e.key === "/") {
+    } else if (e.key === '/') {
         e.preventDefault();
         searchInput.value?.focus();
-    } else if (e.key === "ArrowRight") {
+    } else if (e.key === 'ArrowRight') {
         goPage(1);
-    } else if (e.key === "ArrowLeft") {
+    } else if (e.key === 'ArrowLeft') {
         goPage(-1);
     }
 };
 
-onMounted(() => window.addEventListener("keydown", onKeydown));
-onUnmounted(() => window.removeEventListener("keydown", onKeydown));
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onUnmounted(() => window.removeEventListener('keydown', onKeydown));
 
 // — Barra inferior —
 const recentApps = computed(() =>
@@ -187,6 +192,18 @@ const recentApps = computed(() =>
                     {{ greeting }}
                     <span class="text-wall-muted">¿Qué resolvemos hoy?</span>
                 </div>
+
+                <!-- Alto fijo: nada se corre cuando llega el dólar, ni si no llega -->
+                <div class="mt-[clamp(6px,1.4vh,14px)] h-9">
+                    <Deferred data="dollar">
+                        <template #fallback />
+                        <DollarBox
+                            v-if="dollar"
+                            :dollar="dollar"
+                            align="left"
+                        />
+                    </Deferred>
+                </div>
             </div>
 
             <div
@@ -218,6 +235,18 @@ const recentApps = computed(() =>
                     <Deferred data="weather">
                         <template #fallback />
                         <WeatherLine v-if="weather" :weather="weather" />
+                    </Deferred>
+                </div>
+
+                <!-- En pantallas chicas, sin la columna del reloj, el dólar va acá -->
+                <div class="flex h-9 justify-center sm:justify-end md:hidden">
+                    <Deferred data="dollar">
+                        <template #fallback />
+                        <DollarBox
+                            v-if="dollar"
+                            :dollar="dollar"
+                            align="right"
+                        />
                     </Deferred>
                 </div>
             </div>
@@ -411,7 +440,7 @@ const recentApps = computed(() =>
                         class="ph-duotone"
                         :class="editing ? 'ph-check' : 'ph-pencil-simple'"
                     />
-                    {{ editing ? "Listo" : "Editar" }}
+                    {{ editing ? 'Listo' : 'Editar' }}
                 </button>
             </div>
         </div>

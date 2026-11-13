@@ -30,6 +30,21 @@ export type Weather = {
     updatedAt: string;
 };
 
+// Una cotización del dólar (ver App\Services\Dollar\DollarRates).
+export type DollarRate = {
+    id: string;
+    name: string;
+    buy: number | null;
+    sell: number | null;
+    source: string;
+    updatedAt: string;
+};
+
+export type Dollar = {
+    rates: DollarRate[];
+    updatedAt: string;
+};
+
 export type Category = {
     id: number;
     name: string;

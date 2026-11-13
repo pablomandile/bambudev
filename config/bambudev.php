@@ -28,4 +28,23 @@ return [
         'stale' => 7200,
     ],
 
+    /*
+    | El valor del dólar del Inicio, combinando fuentes: el oficial minorista de
+    | Banco Nación (no tiene API: se lee su página), el mayorista del BCRA (API
+    | pública, sin token) y el resto de DolarApi (blue, MEP, CCL, cripto y el blue
+    | de Ámbito). Si BNA o el BCRA fallan, ese valor sale de DolarApi.
+    | `card_factor` es el recargo del dólar tarjeta sobre el oficial (percepción
+    | del 30 % desde ene-2026): si cambia la normativa, se ajusta acá.
+    */
+    'dollar' => [
+        'dolarapi' => 'https://dolarapi.com/v1',
+        'bcra' => 'https://api.bcra.gob.ar/estadisticascambiarias/v1.0/Cotizaciones',
+        'bna' => 'https://www.bna.com.ar/Personas',
+        'user_agent' => 'bambudev-portal (+https://bambudev.com.ar)',
+        'card_factor' => 1.30,
+        'timezone' => 'America/Argentina/Buenos_Aires',
+        'fresh' => 900,
+        'stale' => 7200,
+    ],
+
 ];
