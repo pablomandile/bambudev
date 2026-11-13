@@ -126,7 +126,7 @@ class MicroApp extends Model
     {
         $query->where('visible', true);
 
-        if (! static::isAdmin($user)) {
+        if (! self::isAdmin($user)) {
             $query->where('admin_only', false);
         }
     }
@@ -144,7 +144,7 @@ class MicroApp extends Model
     public function isAvailableTo(?Authenticatable $user): bool
     {
         // getAttribute: $this->visible es la lista de serialización de Eloquent, no la columna.
-        return $this->getAttribute('visible') && (! $this->admin_only || static::isAdmin($user));
+        return $this->getAttribute('visible') && (! $this->admin_only || self::isAdmin($user));
     }
 
     private static function isAdmin(?Authenticatable $user): bool
